@@ -1,0 +1,131 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="PulseCSE is a Sri Lankan stock alert dashboard prototype for tracking CSE watchlists, alerts, disclosures, and portfolio signals." />
+  <title>PulseCSE | Smart CSE Stock Alerts</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="site-shell">
+    <header class="topbar" data-component="nav"></header>
+
+    <main>
+      <section class="hero section-grid">
+        <div class="hero-copy reveal">
+          <div class="eyebrow"><span></span> Colombo Stock Exchange Alert Prototype</div>
+          <h1>Track Sri Lankan stocks before the market moves past you.</h1>
+          <p class="hero-text">PulseCSE is a polished web app prototype inspired by CSE alerting tools. It lets users build a watchlist, create price alerts, monitor company disclosures, and review triggered signals from one responsive dashboard.</p>
+          <div class="hero-actions">
+            <a class="btn btn-primary" href="dashboard.html">Open Dashboard</a>
+            <a class="btn btn-secondary" href="alerts.html">Create Alert</a>
+          </div>
+          <div class="trust-row" aria-label="Product highlights">
+            <span>Mock market data</span>
+            <span>LocalStorage persistence</span>
+            <span>Responsive UI</span>
+          </div>
+        </div>
+
+        <div class="hero-panel glass-card reveal delay-1" aria-label="Live alert preview">
+          <div class="panel-header">
+            <div>
+              <p class="label">Market Pulse</p>
+              <h2 id="hero-market-status">CSE alert engine</h2>
+            </div>
+            <span class="status-pill live">Demo Live</span>
+          </div>
+          <div class="signal-stack">
+            <article class="signal-card positive">
+              <div>
+                <strong>JKH.N0000</strong>
+                <span>Crossed above LKR 190.00</span>
+              </div>
+              <b>+2.8%</b>
+            </article>
+            <article class="signal-card warning">
+              <div>
+                <strong>COMB.N0000</strong>
+                <span>Disclosure update detected</span>
+              </div>
+              <b>NEW</b>
+            </article>
+            <article class="signal-card neutral">
+              <div>
+                <strong>DIAL.N0000</strong>
+                <span>Watchlist volume rising</span>
+              </div>
+              <b>1.4x</b>
+            </article>
+          </div>
+          <div class="mini-chart" data-chart="hero"></div>
+        </div>
+      </section>
+
+      <section class="metrics-section reveal delay-2" aria-label="Application statistics">
+        <div class="metric-card">
+          <span>12</span>
+          <p>Tracked equities</p>
+        </div>
+        <div class="metric-card">
+          <span>4</span>
+          <p>Alert types</p>
+        </div>
+        <div class="metric-card">
+          <span>5</span>
+          <p>Core pages</p>
+        </div>
+        <div class="metric-card">
+          <span>100%</span>
+          <p>Frontend demo</p>
+        </div>
+      </section>
+
+      <section class="section-block reveal">
+        <div class="section-heading">
+          <p class="label">Why this project works</p>
+          <h2>A complete web technology prototype with clear viva explanations.</h2>
+          <p>It has enough technical depth to explain data structures, DOM manipulation, state persistence, responsive design, and alert logic without requiring a risky live financial API.</p>
+        </div>
+        <div class="feature-grid">
+          <article class="feature-card">
+            <div class="feature-icon">01</div>
+            <h3>Watchlist Dashboard</h3>
+            <p>Users can track selected CSE counters, view price movement, and inspect recent disclosure highlights.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon">02</div>
+            <h3>Rule-Based Alerts</h3>
+            <p>Alert rules simulate price-above, price-below, percentage move, and disclosure events.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon">03</div>
+            <h3>Local Persistence</h3>
+            <p>Alerts, watchlist changes, and history are saved in the browser using LocalStorage.</p>
+          </article>
+          <article class="feature-card">
+            <div class="feature-icon">04</div>
+            <h3>Academic Safe Scope</h3>
+            <p>The project is original, explainable, and avoids copying third-party repo code or claiming real trading signals.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="cta-band reveal">
+        <div>
+          <p class="label">Ready to explore</p>
+          <h2>Start with the dashboard, then create a test alert.</h2>
+        </div>
+        <a class="btn btn-primary" href="dashboard.html">Launch PulseCSE</a>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

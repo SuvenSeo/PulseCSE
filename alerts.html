@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="Create, manage, test, and cancel mock CSE stock alerts in PulseCSE." />
+  <title>Alerts | PulseCSE</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="site-shell app-layout">
+    <header class="topbar" data-component="nav"></header>
+
+    <main>
+      <section class="page-heading reveal">
+        <div>
+          <p class="label">Alert Builder</p>
+          <h1>Create rules for price movement and disclosures</h1>
+          <p>Alerts run against mock market data and store triggered events in browser history.</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-secondary" id="seed-alerts">Load Sample Alerts</button>
+          <button class="btn btn-primary" id="test-alerts">Test Alerts</button>
+        </div>
+      </section>
+
+      <section class="alert-layout reveal delay-1">
+        <article class="glass-card form-card">
+          <div class="card-title-row">
+            <div>
+              <p class="label">New Alert</p>
+              <h2>Define an alert rule</h2>
+            </div>
+          </div>
+          <form id="alert-form" class="stacked-form">
+            <label for="symbol">Company / Symbol</label>
+            <select id="symbol" name="symbol" required></select>
+
+            <label for="alert-type">Alert Type</label>
+            <select id="alert-type" name="alertType" required>
+              <option value="price_above">Price rises above target</option>
+              <option value="price_below">Price falls below target</option>
+              <option value="percent_move">Daily change exceeds percent</option>
+              <option value="disclosure">New disclosure available</option>
+            </select>
+
+            <label for="target">Target Value</label>
+            <input id="target" name="target" type="number" min="0" step="0.01" placeholder="Example: 190.00" required />
+            <p class="hint">For disclosure alerts, the target value is ignored but kept for form consistency.</p>
+
+            <label for="note">Note</label>
+            <input id="note" name="note" type="text" maxlength="80" placeholder="Example: Watch for breakout" />
+
+            <button class="btn btn-primary full-width" type="submit">Save Alert</button>
+          </form>
+        </article>
+
+        <article class="glass-card table-card">
+          <div class="card-title-row">
+            <div>
+              <p class="label">Active Rules</p>
+              <h2>Saved alerts</h2>
+            </div>
+            <span class="status-pill" id="alert-count-pill">0 active</span>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table" id="alerts-table">
+              <thead>
+                <tr>
+                  <th>Symbol</th>
+                  <th>Rule</th>
+                  <th>Target</th>
+                  <th>Note</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </article>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast-region" id="toast-region" aria-live="polite"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/alerts.js"></script>
+</body>
+</html>

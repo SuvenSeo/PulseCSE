@@ -1,0 +1,80 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="About PulseCSE, its scope, implementation, and academic project explanation." />
+  <title>About | PulseCSE</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="site-shell app-layout">
+    <header class="topbar" data-component="nav"></header>
+
+    <main>
+      <section class="page-heading reveal">
+        <div>
+          <p class="label">Project Explanation</p>
+          <h1>What PulseCSE is and how it works</h1>
+          <p>A frontend prototype for a Sri Lankan stock alert platform. It uses mock market data and browser storage so it can run safely on GitHub Pages.</p>
+        </div>
+      </section>
+
+      <section class="section-block reveal delay-1">
+        <div class="info-grid">
+          <article class="glass-card info-card">
+            <h2>Problem</h2>
+            <p>Retail investors often miss price movements and company announcements because they manually check multiple sources. PulseCSE demonstrates how a web app can centralize watchlists, alert rules, and alert history.</p>
+          </article>
+          <article class="glass-card info-card">
+            <h2>Scope</h2>
+            <p>This version is a browser-based prototype. It does not fetch live CSE data, send Telegram messages, or give investment advice. It simulates those flows using structured JavaScript data.</p>
+          </article>
+          <article class="glass-card info-card">
+            <h2>Implementation</h2>
+            <p>The project uses semantic HTML, responsive CSS, modular JavaScript, LocalStorage, DOM rendering, form validation, canvas charting, and a rule evaluator for mock alerts.</p>
+          </article>
+          <article class="glass-card info-card">
+            <h2>Viva Points</h2>
+            <p>You can explain the watchlist array, alert objects, LocalStorage persistence, event listeners, responsive grid layouts, and how simulated market ticks evaluate alert conditions.</p>
+          </article>
+        </div>
+      </section>
+
+      <section class="glass-card reveal">
+        <div class="card-title-row">
+          <div>
+            <p class="label">Architecture</p>
+            <h2>File structure</h2>
+          </div>
+        </div>
+        <pre class="code-block"><code>PulseCSE/
+  index.html
+  dashboard.html
+  alerts.html
+  companies.html
+  history.html
+  about.html
+  css/styles.css
+  js/data.js
+  js/store.js
+  js/ui.js
+  js/main.js
+  js/dashboard.js
+  js/alerts.js
+  js/companies.js
+  js/history.js
+  assets/logo.svg
+  docs/REPORT.md
+  docs/TESTING.md</code></pre>
+      </section>
+    </main>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/main.js"></script>
+</body>
+</html>

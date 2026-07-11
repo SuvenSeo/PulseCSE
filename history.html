@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="PulseCSE alert history and triggered event log." />
+  <title>History | PulseCSE</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="site-shell app-layout">
+    <header class="topbar" data-component="nav"></header>
+
+    <main>
+      <section class="page-heading reveal">
+        <div>
+          <p class="label">Alert History</p>
+          <h1>Triggered signals and market notes</h1>
+          <p>Every simulated alert fire is stored here so users can audit what happened.</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-secondary" id="export-history">Export JSON</button>
+          <button class="btn btn-danger" id="clear-history">Clear History</button>
+        </div>
+      </section>
+
+      <section class="glass-card reveal delay-1">
+        <div class="card-title-row">
+          <div>
+            <p class="label">Event Log</p>
+            <h2>All triggered alerts</h2>
+          </div>
+          <span class="status-pill" id="history-count-pill">0 events</span>
+        </div>
+        <div class="timeline full" id="history-list"></div>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast-region" id="toast-region" aria-live="polite"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/history.js"></script>
+</body>
+</html>

@@ -1,0 +1,119 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="PulseCSE dashboard for mock CSE watchlist, alert status, market movement, and disclosure monitoring." />
+  <title>Dashboard | PulseCSE</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="site-shell app-layout">
+    <header class="topbar" data-component="nav"></header>
+
+    <main>
+      <section class="page-heading reveal">
+        <div>
+          <p class="label">Dashboard</p>
+          <h1>Market overview and watchlist signals</h1>
+          <p>Use the demo market tick button to simulate price movement and test alert evaluation.</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-secondary" id="reset-demo">Reset Demo</button>
+          <button class="btn btn-primary" id="simulate-market">Simulate Market Tick</button>
+        </div>
+      </section>
+
+      <section class="dashboard-grid reveal delay-1">
+        <article class="stat-card">
+          <span class="stat-label">Watchlist Value</span>
+          <strong id="watchlist-value">LKR 0.00</strong>
+          <small id="watchlist-change">0.00% today</small>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">Active Alerts</span>
+          <strong id="active-alerts">0</strong>
+          <small>Rules currently monitored</small>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">Triggered Today</span>
+          <strong id="triggered-today">0</strong>
+          <small>Simulated alert fires</small>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">Disclosures</span>
+          <strong id="disclosure-count">0</strong>
+          <small>Latest company updates</small>
+        </article>
+      </section>
+
+      <section class="content-grid reveal delay-2">
+        <article class="glass-card wide-card">
+          <div class="card-title-row">
+            <div>
+              <p class="label">Watchlist</p>
+              <h2>Your tracked counters</h2>
+            </div>
+            <a href="companies.html" class="text-link">Browse all</a>
+          </div>
+          <div class="table-wrap">
+            <table class="data-table" id="watchlist-table">
+              <thead>
+                <tr>
+                  <th>Symbol</th>
+                  <th>Company</th>
+                  <th>Price</th>
+                  <th>Change</th>
+                  <th>Signal</th>
+                  <th>Action</th>
+                </tr>
+              </thead>
+              <tbody></tbody>
+            </table>
+          </div>
+        </article>
+
+        <aside class="glass-card side-card">
+          <div class="card-title-row">
+            <div>
+              <p class="label">Alert Activity</p>
+              <h2>Recent fires</h2>
+            </div>
+            <a href="history.html" class="text-link">View all</a>
+          </div>
+          <div class="timeline" id="recent-history"></div>
+        </aside>
+      </section>
+
+      <section class="content-grid reveal">
+        <article class="glass-card wide-card">
+          <div class="card-title-row">
+            <div>
+              <p class="label">Market Chart</p>
+              <h2>Watchlist momentum</h2>
+            </div>
+          </div>
+          <canvas id="market-canvas" width="900" height="280" aria-label="Mock market chart" role="img"></canvas>
+        </article>
+        <aside class="glass-card side-card">
+          <div class="card-title-row">
+            <div>
+              <p class="label">Disclosures</p>
+              <h2>Latest updates</h2>
+            </div>
+          </div>
+          <div class="disclosure-list" id="disclosure-list"></div>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast-region" id="toast-region" aria-live="polite"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/dashboard.js"></script>
+</body>
+</html>
