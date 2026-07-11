@@ -1,0 +1,16 @@
+{
+  "name": "PulseCSE Investor Alert Cockpit",
+  "short_name": "PulseCSE",
+  "description": "Frontend prototype for CSE watchlists, alerts, company disclosures, and deterministic market simulation.",
+  "start_url": "index.html",
+  "display": "standalone",
+  "background_color": "#071018",
+  "theme_color": "#22d3ee",
+  "icons": [
+    {
+      "src": "assets/logo.svg",
+      "sizes": "any",
+      "type": "image/svg+xml"
+    }
+  ]
+}

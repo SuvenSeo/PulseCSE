@@ -1,0 +1,10 @@
+{
+  "name": "pulsecse",
+  "version": "2.0.0",
+  "description": "Static CSE stock alert dashboard prototype with deterministic alert simulator.",
+  "private": true,
+  "scripts": {
+    "test": "node tests/alert-engine.test.js",
+    "check": "node scripts/static-check.js"
+  }
+}

@@ -1,0 +1,102 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="PulseCSE simulator lab for deterministic CSE alert demos and viva walkthroughs." />
+  <title>Simulator Lab | PulseCSE</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="manifest" href="manifest.json" />
+</head>
+<body>
+  <div class="site-shell app-layout">
+    <header class="topbar" data-component="nav"></header>
+
+    <main>
+      <section class="page-heading reveal">
+        <div>
+          <p class="label">Simulation Lab</p>
+          <h1>Force market events and prove the alert engine works</h1>
+          <p>Use deterministic scenarios for the viva: each button changes mock market data, evaluates alert rules, and records fired events.</p>
+        </div>
+        <div class="page-actions">
+          <button class="btn btn-secondary" id="load-demo-alerts">Load Demo Alerts</button>
+          <button class="btn btn-primary" id="run-random-tick">Random Tick</button>
+        </div>
+      </section>
+
+      <section class="scenario-grid reveal delay-1" aria-label="Simulation scenarios">
+        <article class="glass-card scenario-card">
+          <span class="feature-icon">01</span>
+          <h2>JKH Breakout</h2>
+          <p>Pushes JKH higher to demonstrate a price-above threshold crossing.</p>
+          <button class="btn btn-primary full-width" data-scenario="jkh_breakout">Run Breakout</button>
+        </article>
+        <article class="glass-card scenario-card">
+          <span class="feature-icon">02</span>
+          <h2>HNB Support Break</h2>
+          <p>Drops HNB to demonstrate a price-below risk alert.</p>
+          <button class="btn btn-primary full-width" data-scenario="hnb_support_break">Run Support Break</button>
+        </article>
+        <article class="glass-card scenario-card">
+          <span class="feature-icon">03</span>
+          <h2>COMB Disclosure</h2>
+          <p>Publishes a mock bank disclosure and fires disclosure alerts.</p>
+          <button class="btn btn-primary full-width" data-scenario="comb_disclosure">Run Disclosure</button>
+        </article>
+        <article class="glass-card scenario-card">
+          <span class="feature-icon">04</span>
+          <h2>DIAL Volume Spike</h2>
+          <p>Increases volume sharply to test a volume-spike alert.</p>
+          <button class="btn btn-primary full-width" data-scenario="dial_volume">Run Volume Spike</button>
+        </article>
+      </section>
+
+      <section class="content-grid reveal delay-2">
+        <article class="glass-card wide-card">
+          <div class="card-title-row">
+            <div>
+              <p class="label">Scenario Output</p>
+              <h2>Latest engine result</h2>
+            </div>
+            <span class="status-pill" id="scenario-status">Ready</span>
+          </div>
+          <div class="timeline full" id="scenario-output"></div>
+        </article>
+        <aside class="glass-card side-card">
+          <div class="card-title-row">
+            <div>
+              <p class="label">Smart Suggestions</p>
+              <h2>Next useful alerts</h2>
+            </div>
+          </div>
+          <div class="suggestion-list" id="suggestion-list"></div>
+        </aside>
+      </section>
+
+      <section class="glass-card reveal">
+        <div class="card-title-row">
+          <div>
+            <p class="label">Viva Explanation</p>
+            <h2>What to say when showing this page</h2>
+          </div>
+        </div>
+        <pre class="code-block"><code>1. The simulator modifies mock company objects.
+2. The alert engine compares previousClose against current price.
+3. It fires only on threshold crossing, disclosure event, percent move, or volume spike.
+4. Fired alerts are saved into LocalStorage history.
+5. Alerts enter a cooling state so they do not spam duplicate notifications.</code></pre>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast-region" id="toast-region" aria-live="polite"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/simulator.js"></script>
+</body>
+</html>

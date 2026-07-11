@@ -3,6 +3,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const countPill = document.querySelector("#history-count-pill");
   const clearButton = document.querySelector("#clear-history");
   const exportButton = document.querySelector("#export-history");
+  const exportCsvButton = document.querySelector("#export-csv");
 
   const render = () => {
     const history = PulseStore.getHistory();
@@ -17,7 +18,7 @@ document.addEventListener("DOMContentLoaded", () => {
       <article class="timeline-item">
         <strong>${event.symbol} - ${PulseUI.alertLabel(event.type)}</strong>
         <span>${event.message}</span><br>
-        <span>Price: ${PulseUI.formatMoney(event.price)} | Move: ${PulseUI.formatPercent(event.changePercent)} | Target: ${event.type === "percent_move" ? PulseUI.formatPercent(event.target) : event.type === "disclosure" ? "Disclosure update" : PulseUI.formatMoney(event.target)}</span><br>
+        <span>Price: ${PulseUI.formatMoney(event.price)} | Move: ${PulseUI.formatPercent(event.changePercent)} | Target: ${PulseUI.targetDisplay(event)}</span><br>
         <span>Note: ${event.note} | ${PulseUI.formatDate(event.createdAt)}</span>
       </article>
     `).join("");
@@ -41,6 +42,23 @@ document.addEventListener("DOMContentLoaded", () => {
     anchor.remove();
     URL.revokeObjectURL(url);
     PulseUI.toast("History exported as JSON.");
+  });
+
+
+  exportCsvButton.addEventListener("click", () => {
+    const history = PulseStore.getHistory();
+    const header = ["createdAt", "symbol", "type", "target", "price", "changePercent", "reason", "message"];
+    const rows = history.map((event) => header.map((key) => `"${String(event[key] ?? "").replaceAll('"', '""')}"`).join(","));
+    const blob = new Blob([[header.join(","), ...rows].join("\n")], { type: "text/csv" });
+    const url = URL.createObjectURL(blob);
+    const anchor = document.createElement("a");
+    anchor.href = url;
+    anchor.download = "pulsecse-alert-history.csv";
+    document.body.appendChild(anchor);
+    anchor.click();
+    anchor.remove();
+    URL.revokeObjectURL(url);
+    PulseUI.toast("History exported as CSV.");
   });
 
   render();

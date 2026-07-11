@@ -960,3 +960,121 @@ select option {
     max-width: none;
   }
 }
+
+.scenario-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 18px;
+  margin: 24px 0;
+}
+
+.scenario-card {
+  display: grid;
+  gap: 14px;
+  align-content: start;
+}
+
+.scenario-card h2,
+.suggestion-item h3 {
+  margin: 0;
+}
+
+.scenario-card p,
+.suggestion-item p {
+  color: var(--muted);
+  line-height: 1.55;
+  margin: 0;
+}
+
+.quick-alert-grid,
+.suggestion-list,
+.peer-list {
+  display: grid;
+  gap: 12px;
+}
+
+.suggestion-item,
+.peer-item {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 14px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.suggestion-item span,
+.peer-item small {
+  color: var(--muted);
+}
+
+.peer-item {
+  display: flex;
+  justify-content: space-between;
+  gap: 12px;
+  align-items: center;
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+
+.peer-item:hover {
+  transform: translateY(-2px);
+  background: rgba(255, 255, 255, 0.07);
+}
+
+.status-pill.warning {
+  background: rgba(255, 202, 101, 0.14);
+  border-color: rgba(255, 202, 101, 0.34);
+  color: var(--warning);
+}
+
+.icon-btn + .icon-btn {
+  margin-left: 6px;
+}
+
+@media (max-width: 1050px) {
+  .scenario-grid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+}
+
+@media (max-width: 720px) {
+  .scenario-grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+.heatmap-grid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 12px;
+}
+
+.heatmap-card {
+  border: 1px solid var(--line);
+  border-radius: 18px;
+  padding: 16px;
+  display: grid;
+  gap: 6px;
+  background: rgba(255, 255, 255, 0.04);
+}
+
+.heatmap-card.positive {
+  background: linear-gradient(135deg, rgba(71, 209, 140, 0.14), rgba(255, 255, 255, 0.035));
+}
+
+.heatmap-card.negative {
+  background: linear-gradient(135deg, rgba(255, 107, 107, 0.14), rgba(255, 255, 255, 0.035));
+}
+
+.heatmap-card span {
+  color: var(--accent-2);
+  font-weight: 800;
+}
+
+.heatmap-card small {
+  color: var(--muted);
+}
+
+@media (max-width: 720px) {
+  .heatmap-grid {
+    grid-template-columns: 1fr;
+  }
+}

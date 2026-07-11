@@ -22,23 +22,34 @@ document.addEventListener("DOMContentLoaded", () => {
     countPill.textContent = `${alerts.length} active`;
 
     if (alerts.length === 0) {
-      tableBody.innerHTML = `<tr><td colspan="5">${PulseUI.emptyState("No alerts saved yet. Create one using the form.")}</td></tr>`;
+      tableBody.innerHTML = `<tr><td colspan="6">${PulseUI.emptyState("No alerts saved yet. Create one using the form.")}</td></tr>`;
       return;
     }
 
     tableBody.innerHTML = alerts.map((alert) => {
       const company = companies.find((item) => item.symbol === alert.symbol);
-      const target = alert.type === "disclosure" ? "Any new update" : alert.type === "percent_move" ? PulseUI.formatPercent(alert.target) : PulseUI.formatMoney(alert.target);
+      const target = PulseUI.targetDisplay(alert);
       return `
         <tr>
           <td><span class="symbol-pill">${alert.symbol}</span><br><span class="card-meta">${company ? company.name : "Unknown"}</span></td>
           <td>${PulseUI.alertLabel(alert.type)}</td>
           <td>${target}</td>
+          <td><span class="status-pill ${alert.armed ? "good" : "warning"}">${alert.armed ? "Armed" : "Cooling"}</span><br><span class="card-meta">Fired ${alert.fireCount || 0}x</span></td>
           <td>${alert.note || "No note"}</td>
-          <td><button class="icon-btn" data-delete="${alert.id}" aria-label="Delete alert">x</button></td>
+          <td><button class="icon-btn" data-toggle="${alert.id}" aria-label="Toggle alert">${alert.enabled === false ? "on" : "off"}</button><button class="icon-btn" data-delete="${alert.id}" aria-label="Delete alert">x</button></td>
         </tr>
       `;
     }).join("");
+
+    tableBody.querySelectorAll("[data-toggle]").forEach((button) => {
+      button.addEventListener("click", () => {
+        const alert = PulseStore.getAlerts().find((item) => item.id === button.dataset.toggle);
+        if (!alert) return;
+        PulseStore.updateAlert(alert.id, { enabled: alert.enabled === false, armed: true });
+        PulseUI.toast(alert.enabled === false ? "Alert enabled." : "Alert paused.");
+        renderAlerts();
+      });
+    });
 
     tableBody.querySelectorAll("[data-delete]").forEach((button) => {
       button.addEventListener("click", () => {
@@ -67,6 +78,10 @@ document.addEventListener("DOMContentLoaded", () => {
       type: typeSelect.value,
       target: Number(targetInput.value || 0),
       note: noteInput.value.trim(),
+      enabled: true,
+      armed: true,
+      cooldownMinutes: 30,
+      fireCount: 0,
       createdAt: new Date().toISOString()
     };
 

@@ -7,6 +7,7 @@
   <title>History | PulseCSE</title>
   <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="css/styles.css" />
+  <link rel="manifest" href="manifest.json" />
 </head>
 <body>
   <div class="site-shell app-layout">
@@ -21,6 +22,7 @@
         </div>
         <div class="page-actions">
           <button class="btn btn-secondary" id="export-history">Export JSON</button>
+          <button class="btn btn-secondary" id="export-csv">Export CSV</button>
           <button class="btn btn-danger" id="clear-history">Clear History</button>
         </div>
       </section>
@@ -41,6 +43,7 @@
   <div class="toast-region" id="toast-region" aria-live="polite"></div>
 
   <script src="js/data.js"></script>
+  <script src="js/engine.js"></script>
   <script src="js/store.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/history.js"></script>

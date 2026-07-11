@@ -7,6 +7,7 @@
   <title>PulseCSE | Smart CSE Stock Alerts</title>
   <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="css/styles.css" />
+  <link rel="manifest" href="manifest.json" />
 </head>
 <body>
   <div class="site-shell">
@@ -41,7 +42,7 @@
             <article class="signal-card positive">
               <div>
                 <strong>JKH.N0000</strong>
-                <span>Crossed above LKR 190.00</span>
+                <span>Crossed above LKR 195.00</span>
               </div>
               <b>+2.8%</b>
             </article>
@@ -74,8 +75,8 @@
           <p>Alert types</p>
         </div>
         <div class="metric-card">
-          <span>5</span>
-          <p>Core pages</p>
+          <span>8</span>
+          <p>Demo pages</p>
         </div>
         <div class="metric-card">
           <span>100%</span>
@@ -98,7 +99,7 @@
           <article class="feature-card">
             <div class="feature-icon">02</div>
             <h3>Rule-Based Alerts</h3>
-            <p>Alert rules simulate price-above, price-below, percentage move, and disclosure events.</p>
+            <p>Alert rules simulate price-above, price-below, percentage move, disclosure, and volume-spike events.</p>
           </article>
           <article class="feature-card">
             <div class="feature-icon">03</div>
@@ -116,14 +117,15 @@
       <section class="cta-band reveal">
         <div>
           <p class="label">Ready to explore</p>
-          <h2>Start with the dashboard, then create a test alert.</h2>
+          <h2>Start with the dashboard, load demo alerts, then run the simulator.</h2>
         </div>
-        <a class="btn btn-primary" href="dashboard.html">Launch PulseCSE</a>
+        <a class="btn btn-primary" href="simulator.html">Open Simulator</a>
       </section>
     </main>
   </div>
 
   <script src="js/data.js"></script>
+  <script src="js/engine.js"></script>
   <script src="js/store.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/main.js"></script>

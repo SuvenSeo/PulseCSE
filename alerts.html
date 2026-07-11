@@ -7,6 +7,7 @@
   <title>Alerts | PulseCSE</title>
   <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="css/styles.css" />
+  <link rel="manifest" href="manifest.json" />
 </head>
 <body>
   <div class="site-shell app-layout">
@@ -43,6 +44,7 @@
               <option value="price_below">Price falls below target</option>
               <option value="percent_move">Daily change exceeds percent</option>
               <option value="disclosure">New disclosure available</option>
+              <option value="volume_spike">Volume spike exceeds percent</option>
             </select>
 
             <label for="target">Target Value</label>
@@ -71,6 +73,7 @@
                   <th>Symbol</th>
                   <th>Rule</th>
                   <th>Target</th>
+                  <th>State</th>
                   <th>Note</th>
                   <th>Action</th>
                 </tr>
@@ -86,6 +89,7 @@
   <div class="toast-region" id="toast-region" aria-live="polite"></div>
 
   <script src="js/data.js"></script>
+  <script src="js/engine.js"></script>
   <script src="js/store.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/alerts.js"></script>

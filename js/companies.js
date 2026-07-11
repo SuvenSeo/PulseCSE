@@ -27,12 +27,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     grid.innerHTML = filtered.map((company) => {
       const change = PulseUI.changePercent(company);
+      const risk = PulseEngine.riskScore(company);
       const inWatchlist = watchlist.includes(company.symbol);
       return `
         <article class="company-card">
           <div class="company-card-header">
             <span class="symbol-pill">${company.symbol}</span>
-            <span class="status-pill ${change >= 0 ? "good" : ""}">${company.signal}</span>
+            <span class="status-pill ${risk >= 60 ? "warning" : change >= 0 ? "good" : ""}">Risk ${risk}</span>
           </div>
           <div>
             <h2>${company.name}</h2>
@@ -45,12 +46,12 @@ document.addEventListener("DOMContentLoaded", () => {
             </div>
             <span class="${PulseUI.changeClass(change)}">${PulseUI.formatPercent(change)}</span>
           </div>
-          <div class="card-meta">Sector: ${company.sector}<br>Volume: ${PulseUI.formatNumber(company.volume)}<br>Market cap: ${company.marketCap}</div>
+          <div class="card-meta">Sector: ${company.sector}<br>Volume: ${PulseUI.formatNumber(company.volume)}<br>Market cap: ${company.marketCap}<br>Signal: ${company.signal}</div>
           <div class="card-actions">
             <button class="btn ${inWatchlist ? "btn-secondary" : "btn-primary"}" data-watch="${company.symbol}">
               ${inWatchlist ? "Remove" : "Watch"}
             </button>
-            <a class="btn btn-secondary" href="alerts.html">Set Alert</a>
+            <a class="btn btn-secondary" href="company.html?symbol=${encodeURIComponent(company.symbol)}">Details</a>
           </div>
         </article>
       `;

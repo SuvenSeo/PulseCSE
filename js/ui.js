@@ -4,6 +4,7 @@ const PulseUI = (() => {
     { href: "dashboard.html", label: "Dashboard" },
     { href: "alerts.html", label: "Alerts" },
     { href: "companies.html", label: "Companies" },
+    { href: "simulator.html", label: "Simulator" },
     { href: "history.html", label: "History" },
     { href: "about.html", label: "About" }
   ];
@@ -28,7 +29,8 @@ const PulseUI = (() => {
       price_above: "Price above",
       price_below: "Price below",
       percent_move: "Percent move",
-      disclosure: "Disclosure"
+      disclosure: "Disclosure",
+      volume_spike: "Volume spike"
     };
     return labels[type] || type;
   };
@@ -129,6 +131,15 @@ const PulseUI = (() => {
     context.stroke();
   };
 
+
+  const getQueryParam = (name) => new URLSearchParams(window.location.search).get(name);
+
+  const targetDisplay = (eventOrAlert) => {
+    if (eventOrAlert.type === "percent_move" || eventOrAlert.type === "volume_spike") return formatPercent(eventOrAlert.target);
+    if (eventOrAlert.type === "disclosure") return "Disclosure update";
+    return formatMoney(eventOrAlert.target);
+  };
+
   const init = () => {
     renderNav();
   };
@@ -145,6 +156,8 @@ const PulseUI = (() => {
     formatDate,
     toast,
     emptyState,
-    drawChart
+    drawChart,
+    getQueryParam,
+    targetDisplay
   };
 })();

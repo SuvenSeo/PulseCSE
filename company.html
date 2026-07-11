@@ -1,0 +1,112 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="PulseCSE company detail page with mock CSE stock price, risk score, disclosures, and alert shortcuts." />
+  <title>Company Detail | PulseCSE</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/styles.css" />
+  <link rel="manifest" href="manifest.json" />
+</head>
+<body>
+  <div class="site-shell app-layout">
+    <header class="topbar" data-component="nav"></header>
+
+    <main>
+      <section class="page-heading reveal">
+        <div>
+          <p class="label">Company Detail</p>
+          <h1 id="company-title">Loading company</h1>
+          <p id="company-description">Inspect the selected CSE counter, create quick alerts, and review mock disclosure data.</p>
+        </div>
+        <div class="page-actions">
+          <a class="btn btn-secondary" href="companies.html">Back to Companies</a>
+          <button class="btn btn-primary" id="watch-toggle">Add to Watchlist</button>
+        </div>
+      </section>
+
+      <section class="dashboard-grid reveal delay-1">
+        <article class="stat-card">
+          <span class="stat-label">Last Price</span>
+          <strong id="detail-price">LKR 0.00</strong>
+          <small id="detail-change">0.00%</small>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">Risk Score</span>
+          <strong id="detail-risk">0</strong>
+          <small id="detail-risk-label">Low risk</small>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">Volume</span>
+          <strong id="detail-volume">0</strong>
+          <small id="detail-volume-change">0.00% vs previous</small>
+        </article>
+        <article class="stat-card">
+          <span class="stat-label">Market Cap</span>
+          <strong id="detail-marketcap">LKR 0</strong>
+          <small id="detail-sector">Sector</small>
+        </article>
+      </section>
+
+      <section class="content-grid reveal delay-2">
+        <article class="glass-card wide-card">
+          <div class="card-title-row">
+            <div>
+              <p class="label">Price Action</p>
+              <h2>Recent mock price path</h2>
+            </div>
+            <span class="status-pill" id="detail-signal">Signal</span>
+          </div>
+          <canvas id="company-canvas" width="900" height="300" aria-label="Company price chart" role="img"></canvas>
+        </article>
+
+        <aside class="glass-card side-card">
+          <div class="card-title-row">
+            <div>
+              <p class="label">Quick Alerts</p>
+              <h2>Create rule</h2>
+            </div>
+          </div>
+          <div class="quick-alert-grid">
+            <button class="btn btn-primary full-width" data-quick="above">Breakout +1%</button>
+            <button class="btn btn-secondary full-width" data-quick="below">Support -2%</button>
+            <button class="btn btn-secondary full-width" data-quick="move">Daily move 2.5%</button>
+            <button class="btn btn-secondary full-width" data-quick="disclosure">Disclosure alert</button>
+          </div>
+        </aside>
+      </section>
+
+      <section class="content-grid reveal">
+        <article class="glass-card wide-card">
+          <div class="card-title-row">
+            <div>
+              <p class="label">Corporate Update</p>
+              <h2>Latest disclosure note</h2>
+            </div>
+          </div>
+          <div class="timeline full" id="company-disclosures"></div>
+        </article>
+
+        <aside class="glass-card side-card">
+          <div class="card-title-row">
+            <div>
+              <p class="label">Peer Context</p>
+              <h2>Same sector</h2>
+            </div>
+          </div>
+          <div class="peer-list" id="peer-list"></div>
+        </aside>
+      </section>
+    </main>
+  </div>
+
+  <div class="toast-region" id="toast-region" aria-live="polite"></div>
+
+  <script src="js/data.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/company.js"></script>
+</body>
+</html>

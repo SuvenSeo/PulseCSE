@@ -7,6 +7,7 @@
   <title>Dashboard | PulseCSE</title>
   <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="css/styles.css" />
+  <link rel="manifest" href="manifest.json" />
 </head>
 <body>
   <div class="site-shell app-layout">
@@ -106,12 +107,35 @@
           <div class="disclosure-list" id="disclosure-list"></div>
         </aside>
       </section>
+
+      <section class="content-grid reveal">
+        <article class="glass-card wide-card">
+          <div class="card-title-row">
+            <div>
+              <p class="label">Sector Heatmap</p>
+              <h2>Market breadth by sector</h2>
+            </div>
+          </div>
+          <div class="heatmap-grid" id="sector-heatmap"></div>
+        </article>
+        <aside class="glass-card side-card">
+          <div class="card-title-row">
+            <div>
+              <p class="label">Smart Alerts</p>
+              <h2>Suggestions</h2>
+            </div>
+            <a href="simulator.html" class="text-link">Simulator</a>
+          </div>
+          <div class="suggestion-list" id="dashboard-suggestions"></div>
+        </aside>
+      </section>
     </main>
   </div>
 
   <div class="toast-region" id="toast-region" aria-live="polite"></div>
 
   <script src="js/data.js"></script>
+  <script src="js/engine.js"></script>
   <script src="js/store.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/dashboard.js"></script>

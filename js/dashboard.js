@@ -10,6 +10,8 @@ document.addEventListener("DOMContentLoaded", () => {
   const simulateButton = document.querySelector("#simulate-market");
   const resetButton = document.querySelector("#reset-demo");
   const canvas = document.querySelector("#market-canvas");
+  const sectorHeatmap = document.querySelector("#sector-heatmap");
+  const dashboardSuggestions = document.querySelector("#dashboard-suggestions");
 
   const renderStats = (companies, watchlist, history, alerts) => {
     const tracked = companies.filter((company) => watchlist.includes(company.symbol));
@@ -39,7 +41,7 @@ document.addEventListener("DOMContentLoaded", () => {
       const change = PulseUI.changePercent(company);
       return `
         <tr>
-          <td><span class="symbol-pill">${company.symbol}</span></td>
+          <td><a class="symbol-pill" href="company.html?symbol=${encodeURIComponent(company.symbol)}">${company.symbol}</a></td>
           <td>${company.name}<br><span class="card-meta">${company.sector}</span></td>
           <td>${PulseUI.formatMoney(company.price)}</td>
           <td class="${PulseUI.changeClass(change)}">${PulseUI.formatPercent(change)}</td>
@@ -93,6 +95,29 @@ document.addEventListener("DOMContentLoaded", () => {
     PulseUI.drawChart(canvas, series);
   };
 
+
+  const renderHeatmap = (companies) => {
+    const sectors = PulseEngine.sectorSummary(companies);
+    sectorHeatmap.innerHTML = sectors.map((sector) => `
+      <article class="heatmap-card ${sector.averageChange >= 0 ? "positive" : "negative"}">
+        <strong>${sector.sector}</strong>
+        <span>${PulseUI.formatPercent(sector.averageChange)} average</span>
+        <small>${sector.count} counters | strongest: ${sector.strongest}</small>
+      </article>
+    `).join("");
+  };
+
+  const renderSuggestions = (companies, watchlist) => {
+    const suggestions = PulseEngine.smartSuggestions(companies, watchlist);
+    dashboardSuggestions.innerHTML = suggestions.length ? suggestions.map((item) => `
+      <article class="suggestion-item">
+        <strong>${item.symbol}</strong>
+        <span>${item.title}</span>
+        <p>${item.message}</p>
+      </article>
+    `).join("") : PulseUI.emptyState("Add companies to your watchlist to receive suggestions.");
+  };
+
   const render = () => {
     const companies = PulseStore.getCompanies();
     const watchlist = PulseStore.getWatchlist();
@@ -104,6 +129,8 @@ document.addEventListener("DOMContentLoaded", () => {
     renderHistory(history);
     renderDisclosures(companies);
     renderChart(companies, watchlist);
+    renderHeatmap(companies);
+    renderSuggestions(companies, watchlist);
   };
 
   simulateButton.addEventListener("click", () => {

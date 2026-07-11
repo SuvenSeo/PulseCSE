@@ -7,6 +7,7 @@
   <title>About | PulseCSE</title>
   <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="css/styles.css" />
+  <link rel="manifest" href="manifest.json" />
 </head>
 <body>
   <div class="site-shell app-layout">
@@ -33,11 +34,11 @@
           </article>
           <article class="glass-card info-card">
             <h2>Implementation</h2>
-            <p>The project uses semantic HTML, responsive CSS, modular JavaScript, LocalStorage, DOM rendering, form validation, canvas charting, and a rule evaluator for mock alerts.</p>
+            <p>The project uses semantic HTML, responsive CSS, modular JavaScript, LocalStorage, DOM rendering, form validation, canvas charting, deterministic scenario simulation, tests, and a separated rule evaluator for mock alerts.</p>
           </article>
           <article class="glass-card info-card">
             <h2>Viva Points</h2>
-            <p>You can explain the watchlist array, alert objects, LocalStorage persistence, event listeners, responsive grid layouts, and how simulated market ticks evaluate alert conditions.</p>
+            <p>You can explain watchlist arrays, alert objects, LocalStorage persistence, event listeners, responsive grid layouts, pure alert-engine functions, and how deterministic scenarios evaluate alert conditions.</p>
           </article>
         </div>
       </section>
@@ -54,18 +55,26 @@
   dashboard.html
   alerts.html
   companies.html
+  company.html
+  simulator.html
   history.html
   about.html
   css/styles.css
   js/data.js
+  js/engine.js
   js/store.js
   js/ui.js
   js/main.js
   js/dashboard.js
   js/alerts.js
   js/companies.js
+  js/company.js
+  js/simulator.js
   js/history.js
-  assets/logo.svg
+  tests/alert-engine.test.js
+  docs/ARCHITECTURE.md
+  docs/COMPETITIVE_ANALYSIS.md
+  docs/VIVA_GUIDE.md
   docs/REPORT.md
   docs/TESTING.md</code></pre>
       </section>
@@ -73,6 +82,7 @@
   </div>
 
   <script src="js/data.js"></script>
+  <script src="js/engine.js"></script>
   <script src="js/store.js"></script>
   <script src="js/ui.js"></script>
   <script src="js/main.js"></script>
