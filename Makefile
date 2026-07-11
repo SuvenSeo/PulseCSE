@@ -1,28 +1,40 @@
-.PHONY: install api seed tick worker test test-js check docker
+PYTHONPATH=backend
+
+.PHONY: help install dev test check migrate seed api tick poller docker-up docker-down
+
+help:
+	@echo "PulseCSE commands: install dev test check migrate seed api tick poller docker-up docker-down"
 
 install:
-	python -m pip install -e .[api]
+	pip install -e ".[prod]"
 
-api:
-	python -m pulsecse api
-
-seed:
-	python -m pulsecse seed
-
-tick:
-	python -m pulsecse tick
-
-worker:
-	python -m pulsecse worker --interval 60
+dev:
+	pip install -e ".[prod,dev]"
+	touch data/.keep || true
 
 test:
-	PYTHONPATH=backend python -m unittest discover -s backend/tests
-
-test-js:
-	npm test
+	npm run fullcheck
 
 check:
-	PYTHONPATH=backend python -m compileall -q backend && npm run check && npm test && PYTHONPATH=backend python -m unittest discover -s backend/tests
+	npm run fullcheck
 
-docker:
+migrate:
+	PYTHONPATH=backend python -m pulsecse migrate
+
+seed:
+	PYTHONPATH=backend python -m pulsecse seed
+
+api:
+	PYTHONPATH=backend python -m pulsecse api
+
+tick:
+	PYTHONPATH=backend python -m pulsecse tick --force
+
+poller:
+	PYTHONPATH=backend python -m pulsecse poller --force
+
+docker-up:
 	docker compose up --build
+
+docker-down:
+	docker compose down

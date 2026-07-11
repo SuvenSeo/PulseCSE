@@ -1,13 +1,14 @@
 {
   "name": "pulsecse",
-  "version": "3.0.0",
-  "description": "High-end full-stack CSE stock alert cockpit with frontend dashboard, Python backend, database, simulator, alert engine, and CI.",
+  "version": "4.0.0",
+  "description": "High-end full-stack CSE stock alert cockpit with frontend dashboard, Python backend, Postgres, Telegram bot runtime, poller, simulator, alert engine, and CI.",
   "private": true,
   "scripts": {
     "test": "node tests/alert-engine.test.js",
     "check": "node scripts/static-check.js",
     "backend:test": "PYTHONPATH=backend python -m unittest discover -s backend/tests",
     "backend:check": "PYTHONPATH=backend python -m compileall -q backend",
+    "backend:migrate": "PYTHONPATH=backend python -m pulsecse migrate",
     "fullcheck": "npm run check && npm test && npm run backend:check && npm run backend:test"
   }
 }

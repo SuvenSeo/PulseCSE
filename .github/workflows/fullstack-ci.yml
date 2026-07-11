@@ -2,26 +2,71 @@ name: PulseCSE Fullstack CI
 
 on:
   push:
-    branches: [main]
   pull_request:
-    branches: [main]
 
 jobs:
-  frontend-and-backend:
+  static-and-unit:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v4
       - uses: actions/setup-node@v4
         with:
-          node-version: '22'
+          node-version: "22"
       - uses: actions/setup-python@v5
         with:
-          python-version: '3.12'
-      - name: Frontend static checks
+          python-version: "3.12"
+          cache: pip
+      - name: Frontend static check
         run: npm run check
-      - name: Frontend alert-engine tests
+      - name: Frontend engine tests
         run: npm test
-      - name: Python syntax check
-        run: PYTHONPATH=backend python -m compileall -q backend
+      - name: Install backend dev deps
+        run: pip install -e ".[dev]"
+      - name: Ruff
+        run: ruff check .
+      - name: Mypy
+        run: mypy pulsecse
+        working-directory: backend
       - name: Backend unit tests
         run: PYTHONPATH=backend python -m unittest discover -s backend/tests
+      - name: Backend compile check
+        run: PYTHONPATH=backend python -m compileall -q backend
+
+  postgres-integration:
+    runs-on: ubuntu-latest
+    services:
+      postgres:
+        image: postgres:16
+        env:
+          POSTGRES_USER: pulsecse
+          POSTGRES_PASSWORD: pulsecse
+          POSTGRES_DB: pulsecse
+        ports:
+          - 5432:5432
+        options: >-
+          --health-cmd "pg_isready -U pulsecse -d pulsecse"
+          --health-interval 5s
+          --health-timeout 5s
+          --health-retries 10
+    env:
+      PULSECSE_DATABASE: postgresql://pulsecse:pulsecse@localhost:5432/pulsecse
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+      - name: Install production deps
+        run: pip install -e ".[prod,dev]"
+      - name: Apply migrations
+        run: python -m pulsecse migrate
+      - name: Seed and tick
+        run: |
+          python -m pulsecse seed
+          python -m pulsecse tick --force
+      - name: API smoke
+        run: |
+          python -m pulsecse api --host 127.0.0.1 --port 8090 &
+          sleep 5
+          curl -fsS http://127.0.0.1:8090/health
+          curl -fsS http://127.0.0.1:8090/metrics.prom

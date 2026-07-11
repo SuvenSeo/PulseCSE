@@ -1,13 +1,43 @@
 services:
-  pulsecse:
+  postgres:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: pulsecse
+      POSTGRES_PASSWORD: pulsecse
+      POSTGRES_DB: pulsecse
+    ports:
+      - "5432:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pulsecse -d pulsecse"]
+      interval: 5s
+      timeout: 5s
+      retries: 10
+    volumes:
+      - pulsecse-postgres:/var/lib/postgresql/data
+
+  api:
     build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
+    environment:
+      PULSECSE_DATABASE: postgresql://pulsecse:pulsecse@postgres:5432/pulsecse
+      PULSECSE_HOST: 0.0.0.0
+      PULSECSE_PORT: 8088
+      PULSECSE_MARKET_PROVIDER: mock
     ports:
       - "8088:8088"
+    command: sh -c "python -m pulsecse migrate && python -m pulsecse seed && python -m pulsecse api --host 0.0.0.0 --port 8088"
+
+  poller:
+    build: .
+    depends_on:
+      postgres:
+        condition: service_healthy
     environment:
-      PULSECSE_DATABASE: /app/data/pulsecse.sqlite3
-      PULSECSE_DEFAULT_USER: demo
+      PULSECSE_DATABASE: postgresql://pulsecse:pulsecse@postgres:5432/pulsecse
       PULSECSE_MARKET_PROVIDER: mock
-    volumes:
-      - pulsecse_data:/app/data
+    command: sh -c "python -m pulsecse migrate && python -m pulsecse poller --force"
+
 volumes:
-  pulsecse_data:
+  pulsecse-postgres:

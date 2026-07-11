@@ -23,6 +23,7 @@ class AlertType(str, Enum):
     VOLUME_SPIKE = "volume_spike"
     NEWS_KEYWORD = "news_keyword"
     RISK_SCORE = "risk_score"
+    PORTFOLIO_DRAWDOWN = "portfolio_drawdown"
 
 
 class AlertStatus(str, Enum):
@@ -139,3 +140,53 @@ class AlertEvent:
         item = asdict(self)
         item["type"] = self.type.value
         return item
+
+
+@dataclass(slots=True)
+class Holding:
+    user_id: str
+    symbol: str
+    quantity: float
+    average_cost: float
+    created_at: str = field(default_factory=utc_now)
+
+    def to_dict(self) -> dict[str, Any]:
+        return asdict(self)
+
+
+@dataclass(slots=True)
+class PortfolioPosition:
+    symbol: str
+    quantity: float
+    average_cost: float
+    current_price: float
+    market_value: float
+    cost_basis: float
+    unrealized_pnl: float
+    unrealized_pnl_percent: float
+
+    def to_dict(self) -> dict[str, Any]:
+        item = asdict(self)
+        for key in ["current_price", "market_value", "cost_basis", "unrealized_pnl", "unrealized_pnl_percent"]:
+            item[key] = round(item[key], 2)
+        return item
+
+
+@dataclass(slots=True)
+class PortfolioSummary:
+    user_id: str
+    total_value: float
+    total_cost: float
+    unrealized_pnl: float
+    unrealized_pnl_percent: float
+    positions: list[PortfolioPosition]
+
+    def to_dict(self) -> dict[str, Any]:
+        return {
+            "user_id": self.user_id,
+            "total_value": round(self.total_value, 2),
+            "total_cost": round(self.total_cost, 2),
+            "unrealized_pnl": round(self.unrealized_pnl, 2),
+            "unrealized_pnl_percent": round(self.unrealized_pnl_percent, 2),
+            "positions": [item.to_dict() for item in self.positions],
+        }

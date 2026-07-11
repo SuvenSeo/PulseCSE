@@ -1,9 +1,9 @@
 from __future__ import annotations
 
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
+from typing import Any
 
-from pulsecse.core.models import AlertRule, AlertStatus, AlertType, DeliveryChannel, new_id
-from pulsecse.storage.sqlite import SQLiteRepository
+from pulsecse.core.models import AlertRule, AlertStatus, AlertType, DeliveryChannel, Holding, new_id
 
 
 @dataclass(slots=True)
@@ -12,17 +12,25 @@ class CommandResult:
     text: str
 
 
-HELP_TEXT = """PulseCSE commands:\n/watch SYMBOL - add to watchlist\n/unwatch SYMBOL - remove from watchlist\n/watchlist - show watchlist\n/alert SYMBOL TYPE TARGET - create alert\n/alerts - list active alerts\n/cancel ALERT_ID - cancel alert\n/events - show latest events\n/help - show help\n\nTypes: price_above, price_below, percent_move, disclosure, volume_spike, news_keyword, risk_score"""
+HELP_TEXT = """PulseCSE commands:
+/watch SYMBOL - add to watchlist
+/unwatch SYMBOL - remove from watchlist
+/watchlist or /mywatchlist - show watchlist
+/alert SYMBOL TYPE TARGET [keyword] - create alert
+/alerts or /myalerts - list active alerts
+/cancel ALERT_ID - cancel alert
+/portfolio - show portfolio P&L
+/holding SYMBOL QTY AVG_COST - set holding
+/events - show latest events
+/help - show help
+
+Types: price_above, price_below, percent_move, disclosure, volume_spike, news_keyword, risk_score, portfolio_drawdown"""
 
 
 class CommandRouter:
-    """Transport-neutral command router.
+    """Transport-neutral command router for Telegram, CLI, Slack, or web chat."""
 
-    Telegram, Discord, Slack, or CLI handlers can all pass text into this router.
-    This gives PulseCSE a bot workflow without tying the core project to one SDK.
-    """
-
-    def __init__(self, repository: SQLiteRepository) -> None:
+    def __init__(self, repository: Any) -> None:
         self.repository = repository
 
     def handle(self, text: str, user_id: str = "demo") -> CommandResult:
@@ -41,7 +49,7 @@ class CommandRouter:
                 symbol = parts[1].upper()
                 self.repository.remove_watch(user_id, symbol)
                 return CommandResult(True, f"Removed {symbol} from watchlist.")
-            if command == "/watchlist":
+            if command in {"/watchlist", "/mywatchlist"}:
                 items = self.repository.watchlist(user_id)
                 return CommandResult(True, "Watchlist: " + (", ".join(items) if items else "empty"))
             if command == "/alert" and len(parts) >= 4:
@@ -50,18 +58,12 @@ class CommandRouter:
                 target = float(parts[3])
                 keyword = " ".join(parts[4:]) if alert_type == AlertType.NEWS_KEYWORD and len(parts) > 4 else None
                 rule = AlertRule(
-                    id=new_id("rule"),
-                    user_id=user_id,
-                    symbol=symbol,
-                    type=alert_type,
-                    target=target,
-                    channels=[DeliveryChannel.IN_APP],
-                    keyword=keyword,
-                    note="Created from command router",
+                    id=new_id("rule"), user_id=user_id, symbol=symbol, type=alert_type, target=target,
+                    channels=[DeliveryChannel.IN_APP, DeliveryChannel.TELEGRAM], keyword=keyword, note="Created from command router",
                 )
                 self.repository.upsert_rules([rule])
                 return CommandResult(True, f"Created {alert_type.value} alert {rule.id} for {symbol}.")
-            if command == "/alerts":
+            if command in {"/alerts", "/myalerts"}:
                 rules = [rule for rule in self.repository.list_rules(user_id) if rule.status == AlertStatus.ACTIVE]
                 if not rules:
                     return CommandResult(True, "No active alerts.")
@@ -73,9 +75,19 @@ class CommandRouter:
                 target = next((rule for rule in rules if rule.id == rule_id), None)
                 if not target:
                     return CommandResult(False, "Alert not found.")
-                target.status = AlertStatus.CANCELLED
-                self.repository.upsert_rules([target])
+                self.repository.upsert_rules([replace(target, status=AlertStatus.CANCELLED)])
                 return CommandResult(True, f"Cancelled {rule_id}.")
+            if command == "/holding" and len(parts) >= 4:
+                symbol = parts[1].upper()
+                quantity = float(parts[2])
+                average_cost = float(parts[3])
+                self.repository.upsert_holding(Holding(user_id, symbol, quantity, average_cost))
+                return CommandResult(True, f"Saved holding: {quantity:g} {symbol} @ LKR {average_cost:g}.")
+            if command == "/portfolio":
+                portfolio = self.repository.portfolio_summary(user_id)
+                lines = [f"Portfolio value LKR {portfolio.total_value:,.2f} | P&L {portfolio.unrealized_pnl_percent:.2f}%"]
+                lines.extend(f"{p.symbol}: {p.quantity:g} shares, P&L {p.unrealized_pnl_percent:.2f}%" for p in portfolio.positions[:8])
+                return CommandResult(True, "\n".join(lines))
             if command == "/events":
                 events = self.repository.list_events(user_id, limit=5)
                 if not events:

@@ -4,15 +4,21 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "pulsecse"
-version = "3.0.0"
-description = "High-end full-stack Colombo Stock Exchange alert cockpit with backend, database, alert engine, simulation lab, and frontend dashboard."
+version = "4.0.0"
+description = "High-end full-stack Colombo Stock Exchange alert cockpit with API, Postgres, Telegram, poller, simulations, portfolio analytics, and frontend dashboard."
 readme = "README.md"
 requires-python = ">=3.11"
 dependencies = []
 
 [project.optional-dependencies]
 api = ["fastapi>=0.111", "uvicorn[standard]>=0.30", "pydantic>=2"]
-dev = ["pytest>=8", "ruff>=0.5", "mypy>=1.10"]
+postgres = ["psycopg[binary,pool]>=3.2"]
+bot = ["python-telegram-bot>=21"]
+prod = ["fastapi>=0.111", "uvicorn[standard]>=0.30", "pydantic>=2", "psycopg[binary,pool]>=3.2", "python-telegram-bot>=21"]
+dev = ["pytest>=8", "pytest-cov>=5", "ruff>=0.5", "mypy>=1.10"]
+
+[project.scripts]
+pulsecse = "pulsecse.__main__:main"
 
 [tool.setuptools]
 package-dir = {"" = "backend"}
@@ -20,6 +26,20 @@ package-dir = {"" = "backend"}
 [tool.setuptools.packages.find]
 where = ["backend"]
 
+[tool.pytest.ini_options]
+testpaths = ["backend/tests"]
+addopts = "-q --cov=pulsecse --cov-report=term-missing --cov-fail-under=80"
+
 [tool.ruff]
 line-length = 120
 target-version = "py311"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B", "SIM"]
+ignore = ["E501"]
+
+[tool.mypy]
+python_version = "3.11"
+warn_unused_configs = true
+ignore_missing_imports = true
+packages = ["pulsecse"]
