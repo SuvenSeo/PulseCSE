@@ -1,10 +1,13 @@
 {
   "name": "pulsecse",
-  "version": "2.0.0",
-  "description": "Static CSE stock alert dashboard prototype with deterministic alert simulator.",
+  "version": "3.0.0",
+  "description": "High-end full-stack CSE stock alert cockpit with frontend dashboard, Python backend, database, simulator, alert engine, and CI.",
   "private": true,
   "scripts": {
     "test": "node tests/alert-engine.test.js",
-    "check": "node scripts/static-check.js"
+    "check": "node scripts/static-check.js",
+    "backend:test": "PYTHONPATH=backend python -m unittest discover -s backend/tests",
+    "backend:check": "PYTHONPATH=backend python -m compileall -q backend",
+    "fullcheck": "npm run check && npm test && npm run backend:check && npm run backend:test"
   }
 }

@@ -1,0 +1,13 @@
+services:
+  pulsecse:
+    build: .
+    ports:
+      - "8088:8088"
+    environment:
+      PULSECSE_DATABASE: /app/data/pulsecse.sqlite3
+      PULSECSE_DEFAULT_USER: demo
+      PULSECSE_MARKET_PROVIDER: mock
+    volumes:
+      - pulsecse_data:/app/data
+volumes:
+  pulsecse_data:

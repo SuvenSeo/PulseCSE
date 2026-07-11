@@ -1,0 +1,79 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="PulseCSE Pro backend-connected command center for live API, database, simulations, and alert events." />
+  <title>PulseCSE | Live API Command Center</title>
+  <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
+  <link rel="stylesheet" href="css/styles.css" />
+</head>
+<body>
+  <div class="site-shell">
+    <header class="topbar" data-component="nav"></header>
+    <main>
+      <section class="page-heading reveal">
+        <p class="label">Full-stack mode</p>
+        <h1>Backend-connected command center.</h1>
+        <p>This page connects the polished frontend to the Python API, SQLite database, market service, alert engine, notification pipeline, and deterministic scenario runner.</p>
+      </section>
+
+      <section class="section-block reveal">
+        <div class="panel-header wrap-panel">
+          <div>
+            <p class="label">API status</p>
+            <h2>PulseCSE Pro backend</h2>
+          </div>
+          <div id="api-status" class="api-status-line"><span class="status-pill warning">Checking...</span></div>
+        </div>
+        <div class="inline-form">
+          <input id="api-base-input" type="url" aria-label="API base URL" />
+          <button id="save-api-base" class="btn btn-secondary" type="button">Save API URL</button>
+          <button id="api-tick" class="btn btn-primary" type="button">Run Market Tick</button>
+        </div>
+        <div id="api-error" class="empty-state danger-box" hidden></div>
+      </section>
+
+      <section id="api-overview" class="metrics-section reveal"></section>
+
+      <section class="content-grid two-column reveal">
+        <article class="glass-card card-pad">
+          <div class="panel-header"><div><p class="label">Scenario runner</p><h2>Force realistic market events</h2></div></div>
+          <div class="scenario-grid">
+            <button class="scenario-card" data-api-scenario="jkh_breakout"><strong>JKH breakout</strong><span>Price-above + momentum event</span></button>
+            <button class="scenario-card" data-api-scenario="hnb_support_break"><strong>HNB support break</strong><span>Price-below risk event</span></button>
+            <button class="scenario-card" data-api-scenario="comb_disclosure"><strong>COMB disclosure</strong><span>Disclosure event</span></button>
+            <button class="scenario-card" data-api-scenario="dial_volume"><strong>DIAL volume spike</strong><span>Unusual volume event</span></button>
+            <button class="scenario-card" data-api-scenario="market_rally"><strong>Market rally</strong><span>Broad market tick</span></button>
+          </div>
+        </article>
+
+        <article class="glass-card card-pad">
+          <div class="panel-header"><div><p class="label">Top gainers</p><h2>Latest backend data</h2></div></div>
+          <div id="api-movers" class="market-list"></div>
+        </article>
+      </section>
+
+      <section class="content-grid two-column reveal">
+        <article class="glass-card card-pad">
+          <div class="panel-header"><div><p class="label">Recent alerts</p><h2>Persisted event log</h2></div></div>
+          <div id="api-events" class="history-list compact-history"></div>
+        </article>
+
+        <article class="glass-card card-pad">
+          <div class="panel-header"><div><p class="label">Risk board</p><h2>Database-backed stocks</h2></div></div>
+          <div id="api-stocks" class="company-grid compact-grid"></div>
+        </article>
+      </section>
+    </main>
+    <div id="toast-region" class="toast-region" aria-live="polite"></div>
+  </div>
+
+  <script src="js/data.js"></script>
+  <script src="js/engine.js"></script>
+  <script src="js/store.js"></script>
+  <script src="js/ui.js"></script>
+  <script src="js/api-client.js"></script>
+  <script src="js/live.js"></script>
+</body>
+</html>

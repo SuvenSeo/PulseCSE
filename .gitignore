@@ -4,3 +4,10 @@ Thumbs.db
 node_modules/
 dist/
 .env
+
+# local backend data
+data/
+*.sqlite3
+__pycache__/
+.pytest_cache/
+.venv/

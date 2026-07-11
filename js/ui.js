@@ -5,6 +5,7 @@ const PulseUI = (() => {
     { href: "alerts.html", label: "Alerts" },
     { href: "companies.html", label: "Companies" },
     { href: "simulator.html", label: "Simulator" },
+    { href: "live.html", label: "Live API" },
     { href: "history.html", label: "History" },
     { href: "about.html", label: "About" }
   ];
@@ -30,7 +31,9 @@ const PulseUI = (() => {
       price_below: "Price below",
       percent_move: "Percent move",
       disclosure: "Disclosure",
-      volume_spike: "Volume spike"
+      volume_spike: "Volume spike",
+      news_keyword: "Keyword",
+      risk_score: "Risk score"
     };
     return labels[type] || type;
   };

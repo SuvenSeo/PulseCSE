@@ -1,108 +1,107 @@
-# PulseCSE
+# PulseCSE Pro
 
-PulseCSE is a polished frontend prototype for a Colombo Stock Exchange watchlist and stock-alert web app. It was built as an original academic-safe project inspired by the general idea of stock alerting, but it does not copy third-party source code and does not claim to provide real financial data.
+PulseCSE Pro is a high-end full-stack alert cockpit for the Colombo Stock Exchange. It combines a polished investor-facing frontend with a Python backend, SQLite persistence, deterministic market simulation, a reusable alert engine, notification adapters, documentation, and CI.
 
-## Version 2 upgrade
+The project is intentionally positioned differently from Telegram-first alert bots. PulseCSE is an **investor cockpit**: a dashboard, alert studio, simulator, company workspace, event history, and backend API in one repo.
 
-This version turns PulseCSE into an **Investor Alert Cockpit** with a stronger alert engine, deterministic simulator, company detail pages, risk scoring, smart suggestions, tests, documentation, and a GitHub Actions workflow.
+## What makes it stronger
 
-## Features
+- Full frontend product: landing page, dashboard, alert studio, company directory, company detail page, simulator lab, history, and live API command center.
+- Full backend product: Python package, API layer, SQLite database, repository pattern, market service, mock market adapter, alert engine, notification pipeline, and CLI commands.
+- Serious alert engine: crossing semantics, cooldowns, re-arming, event fingerprints, percent-move alerts, disclosure alerts, volume spikes, keyword alerts, and risk-score alerts.
+- Demo-safe market system: deterministic scenarios for breakouts, support breaks, disclosures, volume spikes, and broad market rallies.
+- Extensible architecture: adapters isolate market data, storage, notification delivery, and frontend clients.
+- CI-ready: frontend static checks, JavaScript tests, Python syntax checks, backend unit tests, Dockerfile, docker-compose, Makefile, and GitHub Actions.
 
-- Responsive landing page and dashboard
-- Mock CSE company directory
-- Search and sector filtering
-- Watchlist add/remove flow
-- Company detail page with chart, risk score, peers, and disclosure notes
-- Rule-based alert builder
-- Alert enable/disable controls
-- Alert arming and cooldown state
-- Deterministic simulator lab for viva demonstrations
-- Alert types:
-  - Price rises above a target
-  - Price falls below a target
-  - Daily percent move exceeds a target
-  - New disclosure update
-  - Volume spike exceeds a target
-- Simulated market tick button
-- Sector heatmap
-- Smart alert suggestions
-- Alert history log
-- JSON and CSV export for triggered alerts
-- LocalStorage persistence
-- Canvas-based watchlist and company charts
-- Node-based alert-engine tests
-- Static project validation script
-- GitHub Actions workflow
+## Run the static frontend only
 
-## Pages
+Open `index.html` directly in your browser, or serve the folder with any static server.
 
-- `index.html` - product landing page
-- `dashboard.html` - watchlist, market summary, heatmap, suggestions, disclosures, recent fired alerts
-- `alerts.html` - create, pause, delete, seed, and test alerts
-- `companies.html` - browse companies and manage watchlist
-- `company.html` - inspect one company and create quick alerts
-- `simulator.html` - run deterministic market scenarios
-- `history.html` - audit triggered alerts and export history
-- `about.html` - project explanation and architecture
-
-## Tech Stack
-
-- HTML5
-- CSS3
-- JavaScript ES6
-- Browser LocalStorage
-- Canvas API
-- Node.js for tests only
-- No external frontend dependencies
-
-## How to Run
-
-Open `index.html` directly in a browser, or run a simple local server:
+## Run the backend API
 
 ```bash
-python -m http.server 8000
+python -m venv .venv
+source .venv/bin/activate  # Windows: .venv\Scripts\activate
+pip install -e .[api]
+python -m pulsecse seed
+python -m pulsecse api
 ```
 
-Then visit:
+Then open:
 
 ```text
-http://localhost:8000
+http://127.0.0.1:8088/live.html
 ```
 
-## How to Test
-
-Node is only required for the optional test/check workflow.
+## CLI commands
 
 ```bash
-npm test
-npm run check
+python -m pulsecse seed
+python -m pulsecse tick
+python -m pulsecse simulate jkh_breakout
+python -m pulsecse simulate hnb_support_break
+python -m pulsecse simulate comb_disclosure
+python -m pulsecse simulate dial_volume
+python -m pulsecse worker --interval 60
+python -m pulsecse api
 ```
 
-## Best Demo Flow
+## API endpoints
 
-1. Open `dashboard.html` and show watchlist, chart, heatmap, and suggestions.
-2. Open `alerts.html` and click **Load Sample Alerts**.
-3. Open `simulator.html` and run **JKH Breakout**, **COMB Disclosure**, or **DIAL Volume Spike**.
-4. Open `history.html` and show the fired alert audit log.
-5. Open a company detail page from `companies.html` and create a quick alert.
+| Endpoint | Purpose |
+|---|---|
+| `GET /health` | Backend liveness and last tick status |
+| `GET /api/dashboard` | Full dashboard payload |
+| `POST /api/tick` | Run one market tick and evaluate alerts |
+| `POST /api/simulate/{scenario}` | Run deterministic scenario |
+| `GET /api/stocks` | List stocks with latest snapshot and risk scores |
+| `GET /api/alerts` | List alert rules |
+| `POST /api/alerts` | Create alert rule |
+| `GET /api/events` | List alert events |
+| `POST /api/watchlist/{symbol}` | Add watchlist symbol |
+| `DELETE /api/watchlist/{symbol}` | Remove watchlist symbol |
 
-## GitHub Pages Deployment
+## Testing
 
-1. Push these files to your GitHub repository.
-2. Go to repository **Settings**.
-3. Open **Pages**.
-4. Set source to **Deploy from a branch**.
-5. Choose `main` branch and `/root` folder.
-6. Save.
+```bash
+npm run fullcheck
+```
 
-## Documentation
+Equivalent manual commands:
 
-- `docs/ARCHITECTURE.md` - technical architecture and alert lifecycle
-- `docs/COMPETITIVE_ANALYSIS.md` - Chime comparison and product positioning
-- `docs/VIVA_GUIDE.md` - what to explain during the viva
-- `docs/REPORT.md` - report-style project explanation
-- `docs/TESTING.md` - manual testing notes
+```bash
+npm run check
+npm test
+PYTHONPATH=backend python -m compileall -q backend
+PYTHONPATH=backend python -m unittest discover -s backend/tests
+```
 
-## Important Disclaimer
+## Docker
 
-This is a coursework/prototype project. All market data is mock data stored in JavaScript. It is not financial advice and should not be used for real investment decisions.
+```bash
+docker compose up --build
+```
+
+Then open `http://127.0.0.1:8088/live.html`.
+
+## Project structure
+
+```text
+backend/pulsecse/
+  bot/              Transport-neutral command router
+  api/              FastAPI app and REST routes
+  adapters/         Market-data adapter boundary and mock market source
+  core/             Dataclasses, alert engine, analytics
+  notifications/    Console, Telegram, and webhook delivery adapters
+  services/         Market tick orchestration and dashboard aggregation
+  storage/          SQLite repository and schema
+backend/tests/      Backend unit tests
+js/                 Static frontend modules and API client
+css/                Responsive premium UI styles
+docs/               Architecture, runbook, security, roadmap, comparison
+.github/workflows/  CI checks
+```
+
+## Important disclaimer
+
+PulseCSE Pro is an information and engineering project. It is not investment advice, a broker, a trading terminal, or a guarantee of real-time exchange accuracy. The default market provider is a mock adapter so the project is safe, deterministic, and easy to run locally.

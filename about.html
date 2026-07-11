@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <meta name="description" content="About PulseCSE, its scope, implementation, and academic project explanation." />
+  <meta name="description" content="About PulseCSE, its scope, implementation, and full-stack project architecture." />
   <title>About | PulseCSE</title>
   <link rel="icon" href="assets/logo.svg" type="image/svg+xml" />
   <link rel="stylesheet" href="css/styles.css" />
@@ -18,7 +18,7 @@
         <div>
           <p class="label">Project Explanation</p>
           <h1>What PulseCSE is and how it works</h1>
-          <p>A frontend prototype for a Sri Lankan stock alert platform. It uses mock market data and browser storage so it can run safely on GitHub Pages.</p>
+          <p>A full-stack Sri Lankan stock alert cockpit with a premium frontend, Python backend, SQLite persistence, alert engine, simulator, and notification adapters.</p>
         </div>
       </section>
 
@@ -30,15 +30,15 @@
           </article>
           <article class="glass-card info-card">
             <h2>Scope</h2>
-            <p>This version is a browser-based prototype. It does not fetch live CSE data, send Telegram messages, or give investment advice. It simulates those flows using structured JavaScript data.</p>
+            <p>This version runs in two modes: static demo mode and backend-connected mode. The backend uses a mock market adapter by default so local runs are deterministic and safe. Telegram and webhook adapters are included for real notification delivery when credentials are provided.</p>
           </article>
           <article class="glass-card info-card">
             <h2>Implementation</h2>
             <p>The project uses semantic HTML, responsive CSS, modular JavaScript, LocalStorage, DOM rendering, form validation, canvas charting, deterministic scenario simulation, tests, and a separated rule evaluator for mock alerts.</p>
           </article>
           <article class="glass-card info-card">
-            <h2>Viva Points</h2>
-            <p>You can explain watchlist arrays, alert objects, LocalStorage persistence, event listeners, responsive grid layouts, pure alert-engine functions, and how deterministic scenarios evaluate alert conditions.</p>
+            <h2>Engineering Highlights</h2>
+            <p>You can explain watchlist arrays, alert objects, SQLite + LocalStorage, event listeners, responsive grid layouts, pure alert-engine functions, and how deterministic scenarios evaluate alert conditions.</p>
           </article>
         </div>
       </section>
@@ -74,7 +74,7 @@
   tests/alert-engine.test.js
   docs/ARCHITECTURE.md
   docs/COMPETITIVE_ANALYSIS.md
-  docs/VIVA_GUIDE.md
+  docs/SYSTEM_DESIGN.md
   docs/REPORT.md
   docs/TESTING.md</code></pre>
       </section>

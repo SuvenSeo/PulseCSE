@@ -1,0 +1,27 @@
+name: PulseCSE Fullstack CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+
+jobs:
+  frontend-and-backend:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - name: Frontend static checks
+        run: npm run check
+      - name: Frontend alert-engine tests
+        run: npm test
+      - name: Python syntax check
+        run: PYTHONPATH=backend python -m compileall -q backend
+      - name: Backend unit tests
+        run: PYTHONPATH=backend python -m unittest discover -s backend/tests
