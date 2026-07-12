@@ -1,8 +1,22 @@
 # PulseCSE Pro v4
 
+[![PulseCSE Fullstack CI](https://github.com/SuvenSeo/PulseCSE/actions/workflows/fullstack-ci.yml/badge.svg)](https://github.com/SuvenSeo/PulseCSE/actions/workflows/fullstack-ci.yml)
+
 PulseCSE Pro is a high-end full-stack alert cockpit for the Colombo Stock Exchange. It combines an investor-facing dashboard with a Python backend, Postgres/SQLite storage, SQL migrations, market-hours polling, Telegram command runtime, notification routing, portfolio analytics, deterministic simulations, health/metrics endpoints, Docker, and CI.
 
 The product direction is deliberately bigger than a Telegram-only alert bot. PulseCSE can run as a background watcher, but it also works as an investor cockpit: dashboard, alert studio, company workspace, simulator lab, event history, portfolio P&L, live API command center, and bot workflow in one repo.
+
+## Current status
+
+| Area | Status |
+|---|---|
+| Local SQLite demo mode | Ready |
+| Production-style Postgres mode | Ready |
+| Full-stack CI | Ready |
+| Telegram command runtime | Ready |
+| Mock market adapter | Default and deterministic |
+| Live CSE adapter | Isolated behind adapter boundary |
+| Investment advice / trading execution | Explicitly out of scope |
 
 ## Why this is now stronger
 
@@ -46,6 +60,8 @@ Docker:
 ```bash
 docker compose up --build
 ```
+
+See `docs/DEPLOYMENT.md` for deployment options and operational notes.
 
 ## CLI commands
 
@@ -136,7 +152,15 @@ backend/tests/       Backend unit tests
 js/                  Frontend modules and API client
 css/                 Responsive premium UI
 .github/workflows/   Static, backend, and Postgres CI gates
+docs/                Deployment, roadmap, compliance, and operations notes
 ```
+
+## Governance docs
+
+- Roadmap: `docs/ROADMAP.md`
+- Deployment: `docs/DEPLOYMENT.md`
+- Market-data compliance notes: `docs/DATA_SOURCE_COMPLIANCE.md`
+- Operational runbook: `docs/OPERATIONS.md`
 
 ## Disclaimer
 
