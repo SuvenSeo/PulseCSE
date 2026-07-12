@@ -89,6 +89,19 @@ class CSELiveAdapter:
             )
         return snapshots
 
+    def market_status(self) -> str | None:
+        """Live market open/closed text from cse.lk, e.g. "Market Closed".
+
+        Returns None on any network/parse failure so callers can fall back to a
+        local time-window guess rather than crash the poll cycle.
+        """
+        try:
+            payload = self._post("marketStatus")
+        except Exception:
+            return None
+        status = payload.get("status") if isinstance(payload, dict) else None
+        return str(status) if status else None
+
     def latest_disclosures(self) -> list[Disclosure]:
         payload = self._post("approvedAnnouncement")
         rows = payload.get("approvedAnnouncements") or []

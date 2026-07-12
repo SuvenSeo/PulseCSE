@@ -1158,6 +1158,23 @@ select option {
   display: grid;
   gap: 12px;
 }
+.movers-columns {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 20px;
+}
+.movers-column-title {
+  color: var(--muted);
+  font-size: .82rem;
+  text-transform: uppercase;
+  letter-spacing: .04em;
+  margin-bottom: 8px;
+}
+@media (max-width: 720px) {
+  .movers-columns {
+    grid-template-columns: 1fr;
+  }
+}
 .market-row {
   display: flex;
   justify-content: space-between;

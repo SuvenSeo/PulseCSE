@@ -10,7 +10,7 @@ from pulsecse.config import settings
 from pulsecse.core.analytics import market_breadth, risk_label, risk_score, sector_heatmap, suggested_alerts, top_movers
 from pulsecse.core.engine import evaluate_rules
 from pulsecse.core.models import AlertEvent, AlertRule, AlertType, DeliveryChannel, Disclosure, Holding, Stock, StockSnapshot, new_id, utc_now
-from pulsecse.market_hours import MarketWindow
+from pulsecse.market_hours import MarketWindow, is_closed_from_live_status
 from pulsecse.notifications.base import Notifier
 from pulsecse.notifications.console import ConsoleNotifier
 from pulsecse.observability import log_event, timer
@@ -100,11 +100,26 @@ class MarketService:
             AlertRule(new_id("rule"), settings.default_user_id, "JKH.N0000", AlertType.RISK_SCORE, 72, channels=[DeliveryChannel.IN_APP], note="Risk guardrail"),
         ]
 
+    def _market_open(self) -> tuple[bool, str | None]:
+        """Prefer cse.lk's live marketStatus over the local weekday/time-window guess.
+
+        The local window can't know about exchange holidays or early closes; the
+        live adapter can, when it's actually reachable. Falls back to the local
+        guess on any adapter failure or when running against the mock adapter,
+        which has no live signal to offer.
+        """
+        live_status = self.adapter.market_status() if hasattr(self.adapter, "market_status") else None
+        if live_status is not None:
+            return not is_closed_from_live_status(live_status), live_status
+        return self.market_window.is_open(), None
+
     def tick(self, force: bool = True) -> TickResult:
-        if not force and not self.market_window.is_open():
-            self.repository.set_state("last_skip_reason", "market_closed")
-            log_event("tick_skipped", reason="market_closed", market=self.market_window.status())
-            return TickResult([], [], [])
+        if not force:
+            is_open, live_status = self._market_open()
+            if not is_open:
+                self.repository.set_state("last_skip_reason", "market_closed")
+                log_event("tick_skipped", reason="market_closed", market=self.market_window.status(), live_status=live_status)
+                return TickResult([], [], [])
         with timer("market_tick"):
             snapshots = self.adapter.latest_snapshots()  # type: ignore[attr-defined]
             disclosures = self.adapter.latest_disclosures()  # type: ignore[attr-defined]

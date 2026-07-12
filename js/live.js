@@ -1,7 +1,9 @@
 document.addEventListener("DOMContentLoaded", () => {
   const status = document.querySelector("#api-status");
   const overview = document.querySelector("#api-overview");
-  const movers = document.querySelector("#api-movers");
+  const moversGainers = document.querySelector("#api-movers-gainers");
+  const moversLosers = document.querySelector("#api-movers-losers");
+  const moversVolume = document.querySelector("#api-movers-volume");
   const events = document.querySelector("#api-events");
   const stocks = document.querySelector("#api-stocks");
   const errorBox = document.querySelector("#api-error");
@@ -10,6 +12,16 @@ document.addEventListener("DOMContentLoaded", () => {
     if (!errorBox) return;
     errorBox.textContent = message;
     errorBox.hidden = !message;
+  };
+
+  const renderMoverColumn = (container, items, statKey) => {
+    if (!container) return;
+    container.innerHTML = items.length ? items.map((item) => `
+      <article class="market-row">
+        <div><strong>${item.symbol}</strong><span>${PulseUI.formatMoney(item.price)}</span></div>
+        <b class="${PulseUI.changeClass(item[statKey])}">${PulseUI.formatPercent(item[statKey])}</b>
+      </article>
+    `).join("") : PulseUI.emptyState("No data yet.");
   };
 
   const render = (data) => {
@@ -26,12 +38,9 @@ document.addEventListener("DOMContentLoaded", () => {
       <article class="metric-card"><span>${data.events.length}</span><p>Recent events</p></article>
     `;
 
-    movers.innerHTML = data.top_movers.gainers.slice(0, 5).map((item) => `
-      <article class="market-row">
-        <div><strong>${item.symbol}</strong><span>${PulseUI.formatMoney(item.price)}</span></div>
-        <b class="${PulseUI.changeClass(item.change_percent)}">${PulseUI.formatPercent(item.change_percent)}</b>
-      </article>
-    `).join("");
+    renderMoverColumn(moversGainers, data.top_movers.gainers.slice(0, 5), "change_percent");
+    renderMoverColumn(moversLosers, data.top_movers.losers.slice(0, 5), "change_percent");
+    renderMoverColumn(moversVolume, data.top_movers.volume.slice(0, 5), "volume_change_percent");
 
     events.innerHTML = data.events.length ? data.events.slice(0, 8).map((item) => `
       <article class="history-card ${item.severity}">

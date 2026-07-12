@@ -49,8 +49,21 @@
         </article>
 
         <article class="glass-card card-pad">
-          <div class="panel-header"><div><p class="label">Top gainers</p><h2>Latest backend data</h2></div></div>
-          <div id="api-movers" class="market-list"></div>
+          <div class="panel-header"><div><p class="label">Market movers</p><h2>Latest backend data</h2></div></div>
+          <div class="movers-columns">
+            <div class="movers-column">
+              <h3 class="movers-column-title">Gainers</h3>
+              <div id="api-movers-gainers" class="market-list"></div>
+            </div>
+            <div class="movers-column">
+              <h3 class="movers-column-title">Losers</h3>
+              <div id="api-movers-losers" class="market-list"></div>
+            </div>
+            <div class="movers-column">
+              <h3 class="movers-column-title">Volume</h3>
+              <div id="api-movers-volume" class="market-list"></div>
+            </div>
+          </div>
         </article>
       </section>
 

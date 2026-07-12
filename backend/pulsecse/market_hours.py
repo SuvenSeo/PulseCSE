@@ -37,6 +37,16 @@ class MarketWindow:
         }
 
 
+def is_closed_from_live_status(status_text: str) -> bool:
+    """Parse cse.lk's marketStatus text (e.g. "Market Closed", "Market Open").
+
+    Matches on "closed" rather than an exact string, since cse.lk documents no
+    fixed enum of status values - a permissive parse is safer than assuming the
+    exact open-state wording without ever having observed it live.
+    """
+    return "closed" in status_text.lower()
+
+
 def _parse_hhmm(value: str) -> time:
     hour, minute = value.split(":", 1)
     return time(int(hour), int(minute))
