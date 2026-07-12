@@ -8,7 +8,9 @@ version = "4.0.0"
 description = "High-end full-stack Colombo Stock Exchange alert cockpit with API, Postgres, Telegram, poller, simulations, portfolio analytics, and frontend dashboard."
 readme = "README.md"
 requires-python = ">=3.11"
-dependencies = []
+dependencies = [
+    "tzdata; sys_platform == 'win32'",
+]
 
 [project.optional-dependencies]
 api = ["fastapi>=0.111", "uvicorn[standard]>=0.30", "pydantic>=2"]
