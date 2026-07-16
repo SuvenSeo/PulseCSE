@@ -57,230 +57,92 @@ class PostgresRepository:
             (user_id, telegram_id, display_name, utc_now()),
         )
 
-    def get_user(self, user_id: str) -> dict[str, Any] | None:
+    def get_user(self, user_id: str) -> dict[str, Any]:
         result = self._execute("SELECT * FROM users WHERE id = %s", (user_id,)).fetchone()
-        return result if result else None
+        return result if result else {}
 
-    def create_alert_rule(
-        self,
-        user_id: str,
-        alert_type: AlertType,
-        stock_symbol: str,
-        threshold: float,
-        cooldown_seconds: int,
-        delivery_channels: list[DeliveryChannel],
-    ) -> None:
+    def create_alert_rule(self, alert_rule: AlertRule) -> None:
         self._execute(
-            """
-            INSERT INTO alert_rules(
-                user_id,
-                alert_type,
-                stock_symbol,
-                threshold,
-                cooldown_seconds,
-                delivery_channels,
-                created_at
-            )
-            VALUES (%s, %s, %s, %s, %s, %s, %s)
-            ON CONFLICT (user_id, stock_symbol, alert_type) DO UPDATE
-            SET threshold = EXCLUDED.threshold,
-                cooldown_seconds = EXCLUDED.cooldown_seconds,
-                delivery_channels = EXCLUDED.delivery_channels
-            """,
+            "INSERT INTO alert_rules(id,user_id,alert_type,stock_symbol,condition,threshold,created_at) VALUES(%s,%s,%s,%s,%s,%s,%s)",
             (
-                user_id,
-                alert_type,
-                stock_symbol,
-                threshold,
-                cooldown_seconds,
-                json.dumps([channel.value for channel in delivery_channels]),
+                alert_rule.id,
+                alert_rule.user_id,
+                alert_rule.alert_type,
+                alert_rule.stock_symbol,
+                alert_rule.condition,
+                alert_rule.threshold,
                 utc_now(),
             ),
         )
 
     def get_alert_rules(self, user_id: str) -> list[dict[str, Any]]:
-        return self._execute(
-            """
-            SELECT
-                ar.id,
-                ar.user_id,
-                ar.alert_type,
-                ar.stock_symbol,
-                ar.threshold,
-                ar.cooldown_seconds,
-                ar.delivery_channels,
-                ar.created_at
-            FROM alert_rules ar
-            WHERE ar.user_id = %s
-            """,
-            (user_id,),
-        ).fetchall()
+        return self._execute("SELECT * FROM alert_rules WHERE user_id = %s", (user_id,)).fetchall()
 
-    def create_alert_event(
-        self,
-        user_id: str,
-        alert_rule_id: int,
-        stock_symbol: str,
-        event_timestamp: int,
-        event_data: dict[str, Any],
-    ) -> None:
+    def create_alert_event(self, alert_event: AlertEvent) -> None:
         self._execute(
-            """
-            INSERT INTO alert_events(
-                user_id,
-                alert_rule_id,
-                stock_symbol,
-                event_timestamp,
-                event_data,
-                created_at
-            )
-            VALUES (%s, %s, %s, %s, %s, %s)
-            """,
+            "INSERT INTO alert_events(id,alert_rule_id,alert_status,created_at) VALUES(%s,%s,%s,%s)",
+            (alert_event.id, alert_event.alert_rule_id, alert_event.alert_status, utc_now()),
+        )
+
+    def get_alert_events(self, alert_rule_id: str) -> list[dict[str, Any]]:
+        return self._execute("SELECT * FROM alert_events WHERE alert_rule_id = %s", (alert_rule_id,)).fetchall()
+
+    def create_stock_snapshot(self, stock_snapshot: StockSnapshot) -> None:
+        self._execute(
+            "INSERT INTO stock_snapshots(id,stock_symbol,price,created_at) VALUES(%s,%s,%s,%s)",
+            (stock_snapshot.id, stock_snapshot.stock_symbol, stock_snapshot.price, utc_now()),
+        )
+
+    def get_stock_snapshots(self, stock_symbol: str) -> list[dict[str, Any]]:
+        return self._execute("SELECT * FROM stock_snapshots WHERE stock_symbol = %s", (stock_symbol,)).fetchall()
+
+    def create_portfolio_position(self, portfolio_position: PortfolioPosition) -> None:
+        self._execute(
+            "INSERT INTO portfolio_positions(id,user_id,stock_symbol,quantity,created_at) VALUES(%s,%s,%s,%s,%s)",
+            (portfolio_position.id, portfolio_position.user_id, portfolio_position.stock_symbol, portfolio_position.quantity, utc_now()),
+        )
+
+    def get_portfolio_positions(self, user_id: str) -> list[dict[str, Any]]:
+        return self._execute("SELECT * FROM portfolio_positions WHERE user_id = %s", (user_id,)).fetchall()
+
+    def create_portfolio_summary(self, portfolio_summary: PortfolioSummary) -> None:
+        self._execute(
+            "INSERT INTO portfolio_summaries(id,user_id,cash_balance,stock_value,created_at) VALUES(%s,%s,%s,%s,%s)",
+            (portfolio_summary.id, portfolio_summary.user_id, portfolio_summary.cash_balance, portfolio_summary.stock_value, utc_now()),
+        )
+
+    def get_portfolio_summary(self, user_id: str) -> dict[str, Any]:
+        result = self._execute("SELECT * FROM portfolio_summaries WHERE user_id = %s", (user_id,)).fetchone()
+        return result if result else {}
+
+    def create_disclosure(self, disclosure: Disclosure) -> None:
+        self._execute(
+            "INSERT INTO disclosures(id,stock_symbol,company_name,reporting_owner,relationship,transaction_date,transaction_type,ownership_type,shares_owned,price_per_share,shares_change,change_percentage,created_at) VALUES(%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s,%s)",
             (
-                user_id,
-                alert_rule_id,
-                stock_symbol,
-                event_timestamp,
-                json.dumps(event_data),
+                disclosure.id,
+                disclosure.stock_symbol,
+                disclosure.company_name,
+                disclosure.reporting_owner,
+                disclosure.relationship,
+                disclosure.transaction_date,
+                disclosure.transaction_type,
+                disclosure.ownership_type,
+                disclosure.shares_owned,
+                disclosure.price_per_share,
+                disclosure.shares_change,
+                disclosure.change_percentage,
                 utc_now(),
             ),
         )
 
-    def get_alert_events(self, user_id: str) -> list[dict[str, Any]]:
-        return self._execute(
-            """
-            SELECT
-                ae.id,
-                ae.user_id,
-                ae.alert_rule_id,
-                ae.stock_symbol,
-                ae.event_timestamp,
-                ae.event_data,
-                ae.created_at
-            FROM alert_events ae
-            WHERE ae.user_id = %s
-            """,
-            (user_id,),
-        ).fetchall()
+    def get_disclosures(self, stock_symbol: str) -> list[dict[str, Any]]:
+        return self._execute("SELECT * FROM disclosures WHERE stock_symbol = %s", (stock_symbol,)).fetchall()
 
-    def create_stock(self, symbol: str, name: str) -> None:
+    def create_holding(self, holding: Holding) -> None:
         self._execute(
-            "INSERT INTO stocks(symbol, name, created_at) VALUES (%s, %s, %s) ON CONFLICT(symbol) DO NOTHING",
-            (symbol, name, utc_now()),
-        )
-
-    def get_stock(self, symbol: str) -> dict[str, Any] | None:
-        result = self._execute("SELECT * FROM stocks WHERE symbol = %s", (symbol,)).fetchone()
-        return result if result else None
-
-    def create_stock_snapshot(self, stock_symbol: str, timestamp: int, price: float) -> None:
-        self._execute(
-            """
-            INSERT INTO stock_snapshots(
-                stock_symbol,
-                timestamp,
-                price,
-                created_at
-            )
-            VALUES (%s, %s, %s, %s)
-            ON CONFLICT (stock_symbol, timestamp) DO UPDATE
-            SET price = EXCLUDED.price
-            """,
-            (stock_symbol, timestamp, price, utc_now()),
-        )
-
-    def get_stock_snapshots(self, stock_symbol: str) -> list[dict[str, Any]]:
-        return self._execute(
-            """
-            SELECT
-                ss.id,
-                ss.stock_symbol,
-                ss.timestamp,
-                ss.price,
-                ss.created_at
-            FROM stock_snapshots ss
-            WHERE ss.stock_symbol = %s
-            """,
-            (stock_symbol,),
-        ).fetchall()
-
-    def create_holding(self, user_id: str, stock_symbol: str, quantity: int) -> None:
-        self._execute(
-            """
-            INSERT INTO holdings(
-                user_id,
-                stock_symbol,
-                quantity,
-                created_at
-            )
-            VALUES (%s, %s, %s, %s)
-            ON CONFLICT (user_id, stock_symbol) DO UPDATE
-            SET quantity = EXCLUDED.quantity
-            """,
-            (user_id, stock_symbol, quantity, utc_now()),
+            "INSERT INTO holdings(id,stock_symbol,company_name,market_value,shares_owned,created_at) VALUES(%s,%s,%s,%s,%s,%s)",
+            (holding.id, holding.stock_symbol, holding.company_name, holding.market_value, holding.shares_owned, utc_now()),
         )
 
     def get_holdings(self, user_id: str) -> list[dict[str, Any]]:
-        return self._execute(
-            """
-            SELECT
-                h.id,
-                h.user_id,
-                h.stock_symbol,
-                h.quantity,
-                h.created_at
-            FROM holdings h
-            WHERE h.user_id = %s
-            """,
-            (user_id,),
-        ).fetchall()
-
-    def create_portfolio_position(self, user_id: str, stock_symbol: str, market_value: float) -> None:
-        self._execute(
-            """
-            INSERT INTO portfolio_positions(
-                user_id,
-                stock_symbol,
-                market_value,
-                created_at
-            )
-            VALUES (%s, %s, %s, %s)
-            ON CONFLICT (user_id, stock_symbol) DO UPDATE
-            SET market_value = EXCLUDED.market_value
-            """,
-            (user_id, stock_symbol, market_value, utc_now()),
-        )
-
-    def get_portfolio_positions(self, user_id: str) -> list[dict[str, Any]]:
-        return self._execute(
-            """
-            SELECT
-                pp.id,
-                pp.user_id,
-                pp.stock_symbol,
-                pp.market_value,
-                pp.created_at
-            FROM portfolio_positions pp
-            WHERE pp.user_id = %s
-            """,
-            (user_id,),
-        ).fetchall()
-
-    def create_portfolio_summary(self, user_id: str, total_value: float) -> None:
-        self._execute(
-            """
-            INSERT INTO portfolio_summaries(
-                user_id,
-                total_value,
-                created_at
-            )
-            VALUES (%s, %s, %s)
-            ON CONFLICT (user_id) DO UPDATE
-            SET total_value = EXCLUDED.total_value
-            """,
-            (user_id, total_value, utc_now()),
-        )
-
-    def get_portfolio_summary(self, user_id: str) -> dict[str, Any] | None:
-        result = self._execute("SELECT * FROM portfolio_summaries WHERE user_id = %s", (user_id,)).fetchone()
-        return result if result else None
+        return self._execute("SELECT * FROM holdings WHERE user_id = %s", (user_id,)).fetchall()
