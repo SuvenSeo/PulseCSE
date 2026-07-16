@@ -1,0 +1,19 @@
+{
+  "name": "pulse-cse-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for PulseCSE investor cockpit",
+  "main": "index.js",
+  "scripts": {
+    "start": "parcel index.html",
+    "build": "parcel build index.html"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "MIT",
+  "dependencies": {
+    "parcel": "^2.6.2"
+  },
+  "devDependencies": {
+    "parcel": "^2.6.2"
+  }
+}
