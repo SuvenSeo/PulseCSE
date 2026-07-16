@@ -8,6 +8,7 @@ import os
 @dataclass(frozen=True)
 class Settings:
     app_name: str = "PulseCSE Pro"
+    version: str = "0.5.0"  # Added a version for better tracking and production readiness
     database_url: str = os.getenv("PULSECSE_DATABASE", "sqlite:///data/pulsecse.sqlite3")
     default_user_id: str = os.getenv("PULSECSE_DEFAULT_USER", "demo")
     market_provider: str = os.getenv("PULSECSE_MARKET_PROVIDER", "mock")
