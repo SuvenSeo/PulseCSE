@@ -21,13 +21,13 @@ def log_event(name: str, **fields: Any) -> None:
         logging.getLogger("pulsecse").info("%s %s", name, fields)
 
 
-class timer:
+class Timer:
     def __init__(self, name: str, **fields: Any) -> None:
         self.name = name
         self.fields = fields
         self.started = 0.0
 
-    def __enter__(self) -> "timer":
+    def __enter__(self) -> "Timer":
         self.started = perf_counter()
         return self
 
