@@ -2,7 +2,7 @@ from __future__ import annotations
 
 from dataclasses import dataclass
 from datetime import datetime, time
-from random import randint
+from random import randint, uniform
 from zoneinfo import ZoneInfo
 
 from pulsecse.config import settings
@@ -55,6 +55,4 @@ def _parse_hhmm(value: str) -> time:
 def interval_with_jitter(base_seconds: int | None = None, jitter_seconds: int | None = None) -> int:
     base = base_seconds if base_seconds is not None else settings.poll_interval_seconds
     jitter = jitter_seconds if jitter_seconds is not None else settings.poll_jitter_seconds
-    if jitter <= 0:
-        return base
-    return max(1, base + randint(-jitter, jitter))
+    return int(base + uniform(0, jitter))
