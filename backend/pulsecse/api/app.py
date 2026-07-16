@@ -61,7 +61,16 @@ def build_service() -> MarketService:
     return MarketService(repo, notifiers)
 
 
-app = FastAPI()
+app = FastAPI(
+    title="PulseCSE API",
+    description="API for PulseCSE",
+    version="1.0.0",
+    contact={
+        "name": "SuvenSeo",
+        "url": "https://suvenseo.com",
+    },
+)
+
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -72,142 +81,30 @@ app.add_middleware(
 
 app.mount("/static", StaticFiles(directory="static"), name="static")
 
-
-@app.get("/health")
-def read_health() -> dict[str, str]:
-    return {"status": "ok"}
-
-
 @app.get("/alerts/")
-def read_alerts() -> list[AlertRule]:
+async def read_alerts():
     service = build_service()
     return service.get_alerts()
-
 
 @app.post("/alerts/")
-def create_alert(alert: AlertIn) -> AlertRule:
+async def create_alert(alert: AlertIn):
     service = build_service()
-    alert_rule = AlertRule(
-        id=new_id(),
-        symbol=alert.symbol,
-        type=alert.type,
-        target=alert.target,
-        note=alert.note,
-        cooldown_minutes=alert.cooldown_minutes,
-        channels=alert.channels,
-        keyword=alert.keyword,
-    )
-    service.create_alert(alert_rule)
-    return alert_rule
-
+    return service.create_alert(alert)
 
 @app.get("/holdings/")
-def read_holdings() -> list[Holding]:
+async def read_holdings():
     service = build_service()
     return service.get_holdings()
-
 
 @app.post("/holdings/")
-def create_holding(holding: HoldingIn) -> Holding:
+async def create_holding(holding: HoldingIn):
     service = build_service()
-    holding_obj = Holding(
-        id=new_id(),
-        symbol=holding.symbol,
-        quantity=holding.quantity,
-        average_cost=holding.average_cost,
-    )
-    service.create_holding(holding_obj)
-    return holding_obj
+    return service.create_holding(holding)
 
+@app.get("/healthcheck/")
+async def healthcheck():
+    return JSONResponse(content={"status": "ok"}, media_type="application/json")
 
-@app.get("/metrics")
-def read_metrics() -> dict[str, Any]:
-    service = build_service()
-    return service.get_metrics()
-
-
-@app.get("/metrics.prom")
-def read_metrics_prom() -> Response:
-    service = build_service()
-    metrics = service.get_metrics()
-    prom_metrics = ""
-    for key, value in metrics.items():
-        prom_metrics += f"{key} {value}\n"
-    return Response(content=prom_metrics, media_type="text/plain")
-
-
-@app.get("/api/dashboard")
-def read_dashboard() -> dict[str, Any]:
-    service = build_service()
-    return service.get_dashboard()
-
-
-@app.get("/api/alerts")
-def read_api_alerts() -> list[AlertRule]:
-    service = build_service()
-    return service.get_alerts()
-
-
-@app.post("/api/alerts")
-def create_api_alert(alert: AlertIn) -> AlertRule:
-    service = build_service()
-    alert_rule = AlertRule(
-        id=new_id(),
-        symbol=alert.symbol,
-        type=alert.type,
-        target=alert.target,
-        note=alert.note,
-        cooldown_minutes=alert.cooldown_minutes,
-        channels=alert.channels,
-        keyword=alert.keyword,
-    )
-    service.create_alert(alert_rule)
-    return alert_rule
-
-
-@app.get("/api/portfolio")
-def read_api_portfolio() -> list[Holding]:
-    service = build_service()
-    return service.get_holdings()
-
-
-@app.post("/api/portfolio")
-def create_api_portfolio(holding: HoldingIn) -> Holding:
-    service = build_service()
-    holding_obj = Holding(
-        id=new_id(),
-        symbol=holding.symbol,
-        quantity=holding.quantity,
-        average_cost=holding.average_cost,
-    )
-    service.create_holding(holding_obj)
-    return holding_obj
-
-
-@app.get("/api/watchlist")
-def read_api_watchlist() -> list[str]:
-    service = build_service()
-    return service.get_watchlist()
-
-
-@app.get("/api/history")
-def read_api_history() -> list[dict[str, Any]]:
-    service = build_service()
-    return service.get_history()
-
-
-@app.get("/api/live")
-def read_api_live() -> dict[str, Any]:
-    service = build_service()
-    return service.get_live()
-
-
-@app.get("/api/simulator")
-def read_api_simulator() -> dict[str, Any]:
-    service = build_service()
-    return service.get_simulator()
-
-
-@app.get("/api/{path:path}")
-def read_api(path: str) -> JSONResponse:
-    return JSONResponse(content={"error": "Not Found"}, status_code=404)
+if __name__ == "__main__":
+    import uvicorn
+    uvicorn.run(app, host="0.0.0.0", port=8000)
