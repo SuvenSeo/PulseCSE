@@ -54,46 +54,33 @@ class CommandRouter:
                 return CommandResult(True, "Watchlist: " + (", ".join(items) if items else "empty"))
             if command == "/alert" and len(parts) >= 4:
                 symbol = parts[1].upper()
-                alert_type = AlertType(parts[2])
-                target = float(parts[3])
-                keyword = " ".join(parts[4:]) if alert_type == AlertType.NEWS_KEYWORD and len(parts) > 4 else None
-                rule = AlertRule(
-                    id=new_id("rule"), user_id=user_id, symbol=symbol, type=alert_type, target=target,
-                    channels=[DeliveryChannel.IN_APP, DeliveryChannel.TELEGRAM], keyword=keyword, note="Created from command router",
-                )
-                self.repository.upsert_rules([rule])
-                return CommandResult(True, f"Created {alert_type.value} alert {rule.id} for {symbol}.")
+                alert_type = parts[2]
+                target = parts[3]
+                keyword = " ".join(parts[4:]) if len(parts) > 4 else None
+                alert_id = new_id()
+                self.repository.create_alert(user_id, alert_id, symbol, alert_type, target, keyword)
+                return CommandResult(True, f"Alert created for {symbol} with type {alert_type} and target {target}")
             if command in {"/alerts", "/myalerts"}:
-                rules = [rule for rule in self.repository.list_rules(user_id) if rule.status == AlertStatus.ACTIVE]
-                if not rules:
-                    return CommandResult(True, "No active alerts.")
-                lines = [f"{rule.id}: {rule.symbol} {rule.type.value} {rule.target:g} ({'armed' if rule.armed else 'cooling'})" for rule in rules]
-                return CommandResult(True, "Active alerts:\n" + "\n".join(lines))
+                alerts = self.repository.alerts(user_id)
+                alert_texts = [f"Alert {alert.id} for {alert.symbol} with type {alert.type} and target {alert.target}" for alert in alerts]
+                return CommandResult(True, "\n".join(alert_texts) if alert_texts else "No active alerts")
             if command == "/cancel" and len(parts) >= 2:
-                rule_id = parts[1]
-                rules = self.repository.list_rules(user_id)
-                target = next((rule for rule in rules if rule.id == rule_id), None)
-                if not target:
-                    return CommandResult(False, "Alert not found.")
-                self.repository.upsert_rules([replace(target, status=AlertStatus.CANCELLED)])
-                return CommandResult(True, f"Cancelled {rule_id}.")
+                alert_id = parts[1]
+                self.repository.cancel_alert(user_id, alert_id)
+                return CommandResult(True, f"Alert {alert_id} cancelled")
+            if command == "/portfolio":
+                portfolio = self.repository.portfolio(user_id)
+                return CommandResult(True, "Portfolio P&L: " + str(portfolio))
             if command == "/holding" and len(parts) >= 4:
                 symbol = parts[1].upper()
-                quantity = float(parts[2])
-                average_cost = float(parts[3])
-                self.repository.upsert_holding(Holding(user_id, symbol, quantity, average_cost))
-                return CommandResult(True, f"Saved holding: {quantity:g} {symbol} @ LKR {average_cost:g}.")
-            if command == "/portfolio":
-                portfolio = self.repository.portfolio_summary(user_id)
-                lines = [f"Portfolio value LKR {portfolio.total_value:,.2f} | P&L {portfolio.unrealized_pnl_percent:.2f}%"]
-                lines.extend(f"{p.symbol}: {p.quantity:g} shares, P&L {p.unrealized_pnl_percent:.2f}%" for p in portfolio.positions[:8])
-                return CommandResult(True, "\n".join(lines))
+                qty = int(parts[2])
+                avg_cost = float(parts[3])
+                self.repository.set_holding(user_id, symbol, qty, avg_cost)
+                return CommandResult(True, f"Holding {symbol} set to {qty} with average cost {avg_cost}")
             if command == "/events":
-                events = self.repository.list_events(user_id, limit=5)
-                if not events:
-                    return CommandResult(True, "No alert events yet.")
-                lines = [f"{event.created_at} {event.symbol}: {event.message}" for event in events]
-                return CommandResult(True, "Latest events:\n" + "\n".join(lines))
-        except ValueError as exc:
-            return CommandResult(False, f"Invalid command value: {exc}")
-        return CommandResult(False, "Unknown or incomplete command. Send /help.")
+                events = self.repository.events(user_id)
+                event_texts = [f"Event {event.id} for {event.symbol} with type {event.type}" for event in events]
+                return CommandResult(True, "\n".join(event_texts) if event_texts else "No events")
+            return CommandResult(False, "Unknown command")
+        except Exception as e:
+            return CommandResult(False, str(e))
