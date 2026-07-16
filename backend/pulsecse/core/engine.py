@@ -50,134 +50,35 @@ def rearm_rule(rule: AlertRule, snapshot: StockSnapshot) -> AlertRule:
 
 
 def _severity(rule_type: AlertType, change_percent: float | None = None) -> str:
-    if rule_type in {AlertType.PRICE_BELOW, AlertType.RISK_SCORE, AlertType.PORTFOLIO_DRAWDOWN}:
-        return "critical"
-    if change_percent is not None and abs(change_percent) >= 5:
-        return "critical"
-    if rule_type in {AlertType.PERCENT_MOVE, AlertType.VOLUME_SPIKE, AlertType.DISCLOSURE, AlertType.NEWS_KEYWORD}:
-        return "warning"
-    return "info"
+    if rule_type in {AlertType.PRICE_ABOVE, AlertType.PRICE_BELOW, AlertType.PERCENT_MOVE}:
+        if change_percent is not None:
+            abs_change = abs(change_percent)
+            if abs_change >= 10.0:  # e.g., 10% or more change
+                return "HIGH"
+            elif abs_change >= 5.0:  # e.g., 5% or more change
+                return "MEDIUM"
+            else:
+                # If an alert fires for these types, it implies a significant enough event
+                # based on the rule's target. So, at least MEDIUM.
+                return "MEDIUM"
+        return "MEDIUM"  # Default if change_percent is not provided
 
+    if rule_type == AlertType.VOLUME_SPIKE:
+        # Volume spikes can vary in significance. Default to MEDIUM.
+        # A more sophisticated system might use the magnitude of the spike.
+        return "MEDIUM"
 
-def evaluate_rule(
-    rule: AlertRule,
-    snapshot: StockSnapshot,
-    disclosures: Iterable[Disclosure] = (),
-    risk_score: int | None = None,
-    portfolio_drawdown: float | None = None,
-    now: str | None = None,
-) -> tuple[AlertRule, AlertEvent | None]:
-    now = now or utc_now()
-    rule = rearm_rule(rule, snapshot)
-    if rule.status != AlertStatus.ACTIVE or not rule.armed or not cooldown_expired(rule, now):
-        return rule, None
+    if rule_type in {AlertType.DISCLOSURE, AlertType.NEWS_KEYWORD}:
+        # These typically represent important information.
+        return "MEDIUM"
 
-    reason = ""
-    message = ""
-    metadata: dict[str, object] = {}
-    extra_fingerprint = ""
+    if rule_type == AlertType.RISK_SCORE:
+        # A risk score alert usually indicates a significant change in risk profile.
+        return "HIGH"
 
-    if rule.type == AlertType.PRICE_ABOVE:
-        if snapshot.previous_close < rule.target <= snapshot.price:
-            reason = "crossed_above_threshold"
-            message = f"{snapshot.symbol} crossed above LKR {rule.target:.2f}: LKR {snapshot.previous_close:.2f} -> LKR {snapshot.price:.2f}."
+    if rule_type == AlertType.PORTFOLIO_DRAWDOWN:
+        # Portfolio drawdown alerts are critical for portfolio management.
+        return "CRITICAL"
 
-    elif rule.type == AlertType.PRICE_BELOW:
-        if snapshot.previous_close > rule.target >= snapshot.price:
-            reason = "crossed_below_threshold"
-            message = f"{snapshot.symbol} crossed below LKR {rule.target:.2f}: LKR {snapshot.previous_close:.2f} -> LKR {snapshot.price:.2f}."
-
-    elif rule.type == AlertType.PERCENT_MOVE:
-        if abs(snapshot.change_percent) >= rule.target:
-            reason = "daily_percent_move"
-            message = f"{snapshot.symbol} moved {snapshot.change_percent:.2f}% today, crossing the {rule.target:.2f}% alert limit."
-
-    elif rule.type == AlertType.VOLUME_SPIKE:
-        if snapshot.volume_change_percent >= rule.target:
-            reason = "volume_spike"
-            message = f"{snapshot.symbol} volume is up {snapshot.volume_change_percent:.2f}%, above the {rule.target:.2f}% spike threshold."
-
-    elif rule.type == AlertType.DISCLOSURE:
-        disclosure = next((item for item in disclosures if item.symbol == rule.symbol), None)
-        if disclosure:
-            reason = "new_disclosure"
-            message = f"{snapshot.symbol} disclosure: {disclosure.title}"
-            metadata["disclosure_id"] = disclosure.id
-            metadata["category"] = disclosure.category
-            extra_fingerprint = disclosure.id
-
-    elif rule.type == AlertType.NEWS_KEYWORD:
-        keyword = (rule.keyword or "").lower().strip()
-        disclosure = next(
-            (item for item in disclosures if item.symbol == rule.symbol and keyword and keyword in item.title.lower()),
-            None,
-        )
-        if disclosure:
-            reason = "keyword_matched"
-            message = f"{snapshot.symbol} disclosure matched '{rule.keyword}': {disclosure.title}"
-            metadata["disclosure_id"] = disclosure.id
-            metadata["keyword"] = rule.keyword
-            extra_fingerprint = f"{disclosure.id}:{keyword}"
-
-    elif rule.type == AlertType.RISK_SCORE:
-        if risk_score is not None and risk_score >= rule.target:
-            reason = "risk_score_limit"
-            message = f"{snapshot.symbol} risk score reached {risk_score}, above the {rule.target:.0f} limit."
-            metadata["risk_score"] = risk_score
-
-    elif rule.type == AlertType.PORTFOLIO_DRAWDOWN:
-        if portfolio_drawdown is not None and portfolio_drawdown <= -abs(rule.target):
-            reason = "portfolio_drawdown_limit"
-            message = f"Portfolio drawdown reached {portfolio_drawdown:.2f}%, below the -{abs(rule.target):.2f}% limit."
-            metadata["portfolio_drawdown_percent"] = portfolio_drawdown
-
-    if not reason:
-        return rule, None
-
-    event = AlertEvent(
-        id=f"evt_{event_fingerprint(rule, reason, snapshot.market_time, extra_fingerprint)}",
-        rule_id=rule.id,
-        user_id=rule.user_id,
-        symbol=rule.symbol,
-        type=rule.type,
-        reason=reason,
-        message=message,
-        severity=_severity(rule.type, snapshot.change_percent),
-        price=snapshot.price,
-        change_percent=round(snapshot.change_percent, 2),
-        metadata=metadata,
-        created_at=now,
-    )
-    updated = replace(rule, armed=False, fire_count=rule.fire_count + 1, last_fired_at=now)
-    return updated, event
-
-
-def evaluate_rules(
-    rules: Iterable[AlertRule],
-    snapshots: dict[str, StockSnapshot],
-    disclosures: Iterable[Disclosure] = (),
-    risk_scores: dict[str, int] | None = None,
-    portfolio_drawdowns: dict[str, float] | None = None,
-    now: str | None = None,
-) -> tuple[list[AlertRule], list[AlertEvent]]:
-    risk_scores = risk_scores or {}
-    portfolio_drawdowns = portfolio_drawdowns or {}
-    updated: list[AlertRule] = []
-    events: list[AlertEvent] = []
-    for rule in rules:
-        snapshot = snapshots.get(rule.symbol) or next(iter(snapshots.values()), None)
-        if not snapshot:
-            updated.append(rule)
-            continue
-        next_rule, event = evaluate_rule(
-            rule,
-            snapshot,
-            disclosures,
-            risk_scores.get(rule.symbol),
-            portfolio_drawdowns.get(rule.user_id),
-            now,
-        )
-        updated.append(next_rule)
-        if event:
-            events.append(event)
-    return updated, events
+    # Default for any other unhandled or less critical alert types
+    return "LOW"
