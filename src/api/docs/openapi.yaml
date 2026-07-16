@@ -1,0 +1,117 @@
+openapi: 3.0.0
+info:
+  title: PulseCSE API
+  description: API documentation for PulseCSE
+  version: 1.0.0
+servers:
+  - url: http://localhost:8000
+    description: Local development server
+  - url: https://pulse-cse.example.com
+    description: Production server
+paths:
+  /health:
+    get:
+      summary: Check the health of the API
+      description: Returns a 200 OK response if the API is healthy
+      responses:
+        200:
+          description: API is healthy
+        500:
+          description: API is unhealthy
+  /metrics:
+    get:
+      summary: Get metrics about the API
+      description: Returns metrics about the API, such as request counts and response times
+      responses:
+        200:
+          description: Metrics returned successfully
+        500:
+          description: Failed to retrieve metrics
+  /metrics.prom:
+    get:
+      summary: Get metrics about the API in Prometheus format
+      description: Returns metrics about the API in Prometheus format
+      responses:
+        200:
+          description: Metrics returned successfully
+        500:
+          description: Failed to retrieve metrics
+  /api/dashboard:
+    get:
+      summary: Get dashboard data
+      description: Returns data for the dashboard, such as watchlist and portfolio information
+      responses:
+        200:
+          description: Dashboard data returned successfully
+        500:
+          description: Failed to retrieve dashboard data
+  /api/alerts:
+    get:
+      summary: Get alerts
+      description: Returns a list of alerts
+      responses:
+        200:
+          description: Alerts returned successfully
+        500:
+          description: Failed to retrieve alerts
+    post:
+      summary: Create a new alert
+      description: Creates a new alert
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Alert'
+      responses:
+        201:
+          description: Alert created successfully
+        400:
+          description: Invalid request
+        500:
+          description: Failed to create alert
+  /api/portfolio:
+    get:
+      summary: Get portfolio data
+      description: Returns data about the portfolio, such as holdings and P&L
+      responses:
+        200:
+          description: Portfolio data returned successfully
+        500:
+          description: Failed to retrieve portfolio data
+  /api/watchlist:
+    get:
+      summary: Get watchlist data
+      description: Returns data about the watchlist, such as companies and prices
+      responses:
+        200:
+          description: Watchlist data returned successfully
+        500:
+          description: Failed to retrieve watchlist data
+components:
+  schemas:
+    Alert:
+      type: object
+      properties:
+        id:
+          type: integer
+          description: The ID of the alert
+        type:
+          type: string
+          description: The type of the alert (e.g. price_above, price_below)
+        symbol:
+          type: string
+          description: The symbol of the company (e.g. AAPL)
+        price:
+          type: number
+          description: The price of the company
+        created_at:
+          type: string
+          format: date-time
+          description: The time the alert was created
+      required:
+        - id
+        - type
+        - symbol
+        - price
+        - created_at
