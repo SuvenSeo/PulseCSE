@@ -83,71 +83,10 @@ class StockSnapshot:
 
 
 @dataclass(slots=True)
-class Disclosure:
-    id: str
-    symbol: str
-    title: str
-    category: str
-    published_at: str
-    url: str | None = None
-    source: str = "mock"
-
-    def to_dict(self) -> dict[str, Any]:
-        return asdict(self)
-
-
-@dataclass(slots=True)
-class AlertRule:
-    id: str
-    user_id: str
-    symbol: str
+class Alert:
+    id: str = field(default_factory=lambda: new_id("alert"))
     type: AlertType
-    target: float = 0.0
     status: AlertStatus = AlertStatus.ACTIVE
-    channels: list[DeliveryChannel] = field(default_factory=lambda: [DeliveryChannel.IN_APP])
-    note: str = ""
-    armed: bool = True
-    fire_count: int = 0
-    cooldown_minutes: int = 30
-    last_fired_at: str | None = None
-    keyword: str | None = None
-    created_at: str = field(default_factory=utc_now)
-
-    def to_dict(self) -> dict[str, Any]:
-        item = asdict(self)
-        item["type"] = self.type.value
-        item["status"] = self.status.value
-        item["channels"] = [channel.value for channel in self.channels]
-        return item
-
-
-@dataclass(slots=True)
-class AlertEvent:
-    id: str
-    rule_id: str
-    user_id: str
-    symbol: str
-    type: AlertType
-    reason: str
-    message: str
-    severity: Literal["info", "warning", "critical"] = "info"
-    price: float | None = None
-    change_percent: float | None = None
-    metadata: dict[str, Any] = field(default_factory=dict)
-    created_at: str = field(default_factory=utc_now)
-
-    def to_dict(self) -> dict[str, Any]:
-        item = asdict(self)
-        item["type"] = self.type.value
-        return item
-
-
-@dataclass(slots=True)
-class Holding:
-    user_id: str
-    symbol: str
-    quantity: float
-    average_cost: float
     created_at: str = field(default_factory=utc_now)
 
     def to_dict(self) -> dict[str, Any]:
@@ -155,38 +94,97 @@ class Holding:
 
 
 @dataclass(slots=True)
-class PortfolioPosition:
-    symbol: str
-    quantity: float
-    average_cost: float
-    current_price: float
-    market_value: float
-    cost_basis: float
-    unrealized_pnl: float
-    unrealized_pnl_percent: float
+class PriceAlert(Alert):
+    stock: Stock
+    target_price: float
 
     def to_dict(self) -> dict[str, Any]:
-        item = asdict(self)
-        for key in ["current_price", "market_value", "cost_basis", "unrealized_pnl", "unrealized_pnl_percent"]:
-            item[key] = round(item[key], 2)
+        item = super().to_dict()
+        item["stock"] = self.stock.to_dict()
+        item["target_price"] = self.target_price
         return item
 
 
 @dataclass(slots=True)
-class PortfolioSummary:
-    user_id: str
-    total_value: float
-    total_cost: float
-    unrealized_pnl: float
-    unrealized_pnl_percent: float
-    positions: list[PortfolioPosition]
+class PercentMoveAlert(Alert):
+    stock: Stock
+    percent_move: float
 
     def to_dict(self) -> dict[str, Any]:
-        return {
-            "user_id": self.user_id,
-            "total_value": round(self.total_value, 2),
-            "total_cost": round(self.total_cost, 2),
-            "unrealized_pnl": round(self.unrealized_pnl, 2),
-            "unrealized_pnl_percent": round(self.unrealized_pnl_percent, 2),
-            "positions": [item.to_dict() for item in self.positions],
-        }
+        item = super().to_dict()
+        item["stock"] = self.stock.to_dict()
+        item["percent_move"] = self.percent_move
+        return item
+
+
+@dataclass(slots=True)
+class DisclosureAlert(Alert):
+    stock: Stock
+    keyword: str
+
+    def to_dict(self) -> dict[str, Any]:
+        item = super().to_dict()
+        item["stock"] = self.stock.to_dict()
+        item["keyword"] = self.keyword
+        return item
+
+
+@dataclass(slots=True)
+class VolumeSpikeAlert(Alert):
+    stock: Stock
+    volume_threshold: int
+
+    def to_dict(self) -> dict[str, Any]:
+        item = super().to_dict()
+        item["stock"] = self.stock.to_dict()
+        item["volume_threshold"] = self.volume_threshold
+        return item
+
+
+@dataclass(slots=True)
+class NewsKeywordAlert(Alert):
+    stock: Stock
+    keyword: str
+
+    def to_dict(self) -> dict[str, Any]:
+        item = super().to_dict()
+        item["stock"] = self.stock.to_dict()
+        item["keyword"] = self.keyword
+        return item
+
+
+@dataclass(slots=True)
+class RiskScoreAlert(Alert):
+    stock: Stock
+    risk_score_threshold: float
+
+    def to_dict(self) -> dict[str, Any]:
+        item = super().to_dict()
+        item["stock"] = self.stock.to_dict()
+        item["risk_score_threshold"] = self.risk_score_threshold
+        return item
+
+
+@dataclass(slots=True)
+class PortfolioDrawdownAlert(Alert):
+    portfolio: list[Stock]
+    drawdown_threshold: float
+
+    def to_dict(self) -> dict[str, Any]:
+        item = super().to_dict()
+        item["portfolio"] = [stock.to_dict() for stock in self.portfolio]
+        item["drawdown_threshold"] = self.drawdown_threshold
+        return item
+
+
+@dataclass(slots=True)
+class Notification:
+    id: str = field(default_factory=lambda: new_id("notification"))
+    alert: Alert
+    delivery_channel: DeliveryChannel
+    created_at: str = field(default_factory=utc_now)
+
+    def to_dict(self) -> dict[str, Any]:
+        item = asdict(self)
+        item["alert"] = self.alert.to_dict()
+        return item
