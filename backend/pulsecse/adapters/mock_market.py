@@ -54,94 +54,36 @@ class MockMarketAdapter:
         self.random = random.Random(seed)
         self._snapshots: dict[str, StockSnapshot] = {
             symbol: StockSnapshot(
-                symbol=symbol,
-                price=price,
-                previous_close=round(price * self.random.uniform(0.985, 1.012), 2),
-                volume=volume,
-                previous_volume=max(1, round(volume * self.random.uniform(0.8, 1.2))),
-                high=round(price * 1.018, 2),
-                low=round(price * 0.982, 2),
+                id=new_id(),
+                timestamp=utc_now(),
+                stock=stock,
+                price=self.random.uniform(_BASE[stock.symbol][0] * 0.9, _BASE[stock.symbol][0] * 1.1),
+                volume=self.random.randint(_BASE[stock.symbol][1] * 0.9, _BASE[stock.symbol][1] * 1.1),
+                disclosures=[
+                    Disclosure(
+                        id=new_id(),
+                        timestamp=utc_now(),
+                        content=self.random.choice(_DISCLOSURES),
+                    )
+                ],
             )
-            for symbol, (price, volume) in _BASE.items()
+            for symbol, stock in [(stock.symbol, stock) for stock in SEED_STOCKS]
         }
 
-    def list_stocks(self) -> list[Stock]:
-        return list(SEED_STOCKS)
+    def get_stock_snapshot(self, symbol: str) -> StockSnapshot:
+        """Get the current stock snapshot for the given symbol."""
+        return self._snapshots[symbol]
 
-    def latest_snapshots(self) -> list[StockSnapshot]:
-        next_snapshots = []
-        for snapshot in self._snapshots.values():
-            drift = self.random.uniform(-0.018, 0.022)
-            volume_drift = self.random.uniform(0.88, 1.22)
-            price = max(1, round(snapshot.price * (1 + drift), 2))
-            volume = max(1, round(snapshot.volume * volume_drift))
-            updated = StockSnapshot(
-                symbol=snapshot.symbol,
-                price=price,
-                previous_close=snapshot.price,
-                volume=volume,
-                previous_volume=snapshot.volume,
-                high=max(snapshot.high, price),
-                low=min(snapshot.low, price),
-                market_time=utc_now(),
-                source="mock",
-            )
-            self._snapshots[snapshot.symbol] = updated
-            next_snapshots.append(updated)
-        return next_snapshots
+    def get_stock_snapshots(self) -> Iterable[StockSnapshot]:
+        """Get all current stock snapshots."""
+        return self._snapshots.values()
 
-    def latest_disclosures(self) -> list[Disclosure]:
-        if self.random.random() > 0.35:
-            return []
-        stock = self.random.choice(SEED_STOCKS)
-        title = self.random.choice(_DISCLOSURES)
-        return [
-            Disclosure(
-                id=new_id("disc"),
-                symbol=stock.symbol,
-                title=title,
-                category="Corporate Disclosure",
-                published_at=utc_now(),
-                source="mock",
-            )
-        ]
+    def update_stock_snapshot(self, symbol: str, price: float, volume: int) -> None:
+        """Update the stock snapshot for the given symbol."""
+        self._snapshots[symbol] = replace(self._snapshots[symbol], price=price, volume=volume)
 
-    def apply_scenario(self, scenario: str) -> tuple[list[StockSnapshot], list[Disclosure]]:
-        recipes = {
-            "jkh_breakout": ("JKH.N0000", 1.055, 1.40, None),
-            "hnb_support_break": ("HNB.N0000", 0.955, 1.30, None),
-            "comb_disclosure": ("COMB.N0000", 1.010, 1.08, "New interim financial statement and board update published"),
-            "dial_volume": ("DIAL.N0000", 1.015, 2.10, None),
-            "market_rally": ("ALL", 1.025, 1.25, None),
-        }
-        symbol, price_mult, volume_mult, disclosure_title = recipes.get(scenario, recipes["market_rally"])
-        touched: list[StockSnapshot] = []
-        disclosures: list[Disclosure] = []
-        for current_symbol, snapshot in list(self._snapshots.items()):
-            if symbol != "ALL" and current_symbol != symbol:
-                continue
-            updated = StockSnapshot(
-                symbol=current_symbol,
-                price=round(snapshot.price * price_mult, 2),
-                previous_close=snapshot.price,
-                volume=round(snapshot.volume * volume_mult),
-                previous_volume=snapshot.volume,
-                high=max(snapshot.high, round(snapshot.price * price_mult, 2)),
-                low=min(snapshot.low, round(snapshot.price * price_mult, 2)),
-                market_time=utc_now(),
-                source=f"scenario:{scenario}",
-            )
-            self._snapshots[current_symbol] = updated
-            touched.append(updated)
-        if disclosure_title and symbol != "ALL":
-            disclosures.append(
-                Disclosure(
-                    id=new_id("disc"),
-                    symbol=symbol,
-                    title=disclosure_title,
-                    category="Financial Statements",
-                    published_at=utc_now(),
-                    source=f"scenario:{scenario}",
-                )
-            )
-        return touched, disclosures
+    def add_disclosure(self, symbol: str, content: str) -> None:
+        """Add a new disclosure to the stock snapshot for the given symbol."""
+        self._snapshots[symbol].disclosures.append(
+            Disclosure(id=new_id(), timestamp=utc_now(), content=content)
+        )
